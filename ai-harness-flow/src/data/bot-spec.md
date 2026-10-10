@@ -1,7 +1,16 @@
 # Bot Specification — AI Harness
 
-> Data source for the Harness Orchestrator. The coordinator reads this spec and
+> Data source for the Central Assistant. The coordinator reads this spec and
 > assigns compute to bots based on skills, availability, and cost.
+
+## Key Components
+
+- **💬 User Hub (Discord):** Central chat interface — send prompts, request tasks, interact with AI
+- **🧠 Brains (LLM Providers):** Smart AI engines (Xiaomi, DeepSeek, Grok, Hermes) that analyze requests and formulate answers
+- **🦾 Central Assistant (HERMESS & GrokBot):** Main manager — takes chat commands, grabs files, uses tools, controls compute
+- **⚙️ Hardware Fleet (Compute Nodes):** Team of machines doing heavy lifting — Hetzner (lead), Mac Mini, Skull Canyon
+- **🪖 Workstation & Tools:** n8n workflows, Azure Key Vault, web connections that execute tasks
+- **🗄️ Knowledge Base & Storage:** Obsidian Second Brain, Neo4j, Qdrant, Google Drive — notes, data, history
 
 ## Bots
 
@@ -24,7 +33,7 @@
 - **Auth:** Azure (service principal), Grafana (API key), GitHub (PAT)
 - **Coordination:** Receives assignments from the coordinator; reports status back
 
-## Compute Hosts
+## Hardware Fleet (Compute Nodes)
 
 | Host | Location | Speed | Hermes | GROKBOT | Skills |
 |---|---|---|---|---|---|
@@ -49,14 +58,14 @@
 
 ## Coordination Logic
 
-The Harness Orchestrator (coordinator) runs on Hetzner and follows this flow:
+The Central Assistant runs on Hetzner and follows this flow:
 
-1. **Read spec** — Load this bot-spec.md to know which bots and hosts are available
+1. **Read spec** — Load bot-spec.md to know which bots and hosts are available
 2. **Check health** — Query Grafana for host status and bot availability
 3. **Match skills** — Assign tasks to the bot+host pair with the best skill match
 4. **Balance load** — Prefer FAST hosts (Hetzner, Mac Mini) over slow ones
 5. **Fallback** — If primary host is down, reassign to next available
-6. **Report** — Log assignment decisions, push status to Discord channel
+6. **Report** — Log assignment decisions, push status to Discord (User Hub)
 
 ## Skill Matrix
 
@@ -77,6 +86,6 @@ The Harness Orchestrator (coordinator) runs on Hetzner and follows this flow:
 
 ## Version
 
-- Spec version: 1.0.0
+- Spec version: 1.1.0
 - Last updated: 2026-10-10
-- Maintained by: Harness Orchestrator (auto-synced from diagram notes)
+- Maintained by: Central Assistant (auto-synced from diagram notes)

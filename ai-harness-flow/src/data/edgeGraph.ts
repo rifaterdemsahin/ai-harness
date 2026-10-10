@@ -22,13 +22,13 @@ export type GraphEdge = {
 
 /** Seed data required by the spec (part 6). */
 export const SEED_EDGES: GraphEdge[] = [
-  { id: 'seed-compute-llm', source: 'compute', target: 'llm', label: 'compute', kind: 'seed' },
-  { id: 'seed-external-llm', source: 'external', target: 'llm', label: 'providers', kind: 'seed' },
+  { id: 'seed-compute-llm', source: 'compute', target: 'llm', label: 'processes', kind: 'seed' },
+  { id: 'seed-external-llm', source: 'external', target: 'llm', label: 'supplies', kind: 'seed' },
   { id: 'seed-hermess-channel', source: 'hermess', target: 'channel', label: 'serves', kind: 'seed' },
   { id: 'seed-hermess-tools', source: 'hermess', target: 'tools', label: 'uses', kind: 'seed' },
-  { id: 'seed-inputs-data', source: 'dataInputs', target: 'dataOutput', label: 'ingest', kind: 'seed' },
+  { id: 'seed-inputs-data', source: 'dataInputs', target: 'dataOutput', label: 'stores', kind: 'seed' },
   { id: 'seed-compute-hermess', source: 'compute', target: 'hermess', label: 'hosts', kind: 'seed' },
-  { id: 'seed-hermess-compute', source: 'hermess', target: 'compute', label: 'coordinate', kind: 'seed' },
+  { id: 'seed-hermess-compute', source: 'hermess', target: 'compute', label: 'directs', kind: 'seed' },
 ];
 
 /** PART 5 — edge colour inherits from the source node's border colour. */

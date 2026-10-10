@@ -44,18 +44,18 @@ export { loadNotes, saveNotes, loadLinks, saveLinks };
 
 /** Clean notes — no TODOs, no stale instructions. */
 export const DEFAULT_NOTES: Record<string, string> = {
-  channel: 'Role maps to Category\nChannel maps to Domain-Topic',
+  channel: 'Central chat interface\nSend prompts, request tasks, interact with AI assistant',
   coordinator: 'Reads bot-spec.md to assign compute to bots\nEnsures bots are always running\nMonitors via Grafana, auth via Azure',
-  llm: 'Linked to External Providers for model access',
+  llm: 'Smart AI engines: Xiaomi, DeepSeek, Grok, Hermes\nAnalyze requests and formulate answers',
   dataOutput:
-    'Rclone (PAP: Pull, Push, Archive)\nArangoDB for metadata\nNeo4j for relations\nDaily push to Qdrant for semantic context',
-  dataInputs: 'Mostly Markdown and Images\nSecond Brain on Obsidian (MacBook)',
+    'Long-term storage layer\nObsidian for notes, Neo4j for relations\nQdrant for vector search, Drive for files\nArangoDB for metadata, daily sync',
+  dataInputs: 'Source: Obsidian Second Brain\nFormat: Markdown and Images\nHosted on MacBook',
   external: 'API based usage\nGrok (dev laptop, usage-based pricing)',
   outside: 'Connects to Channel node via [[channel]]',
-  desktop: 'Erdem codes locally and uses mobile\nHermes fallback model',
+  desktop: 'Local workstation and mobile access\nErdem codes locally, uses phone on the go\nHermes as fallback model',
   tools:
     'Connected to Second Brain via [[dataOutput]]\nHermess orchestrates from [[hermess]]',
-  hermess: 'Harness Orchestrator\nReads bot-spec.md for coordination\nAssigns compute based on skills and availability\nAzure + Grafana monitoring',
+  hermess: 'Main manager running behind the scenes\nTakes chat commands, grabs files, uses tools\nControls compute machines\nReads bot-spec.md for coordination',
 };
 
 const baseNodes: AppNode[] = [
@@ -64,7 +64,7 @@ const baseNodes: AppNode[] = [
     type: 'compute',
     position: { x: 64, y: 190 },
     data: {
-      title: '\u2699\ufe0f Compute',
+      title: '\u2699\ufe0f Hardware Fleet (Compute Nodes)',
       color: '#F2994A',
       badge: { n: 2, emoji: '\u2699\ufe0f' },
       toggles: [
@@ -72,11 +72,11 @@ const baseNodes: AppNode[] = [
         { label: 'MacBook', on: false, note: '\u2192 LLM' },
       ],
       lines: [
-        'Hetzner VPS \u2192 FAST, coordinator',
-        'Mac Mini \u2192 FAST (Apple Silicon)',
-        'Skull Canyon \u2192 slow (Intel NUC)',
-        'Hermes + GROKBOT on all hosts',
-        'Each host has different skills',
+        'Hetzner cloud server (main lead) \u2192 FAST',
+        'Mac Mini (local) \u2192 FAST, Apple Silicon',
+        'Skull Canyon (local) \u2192 slow, Intel NUC',
+        'Hermes + GROKBOT on every machine',
+        'Each machine has different skills',
       ],
     },
     style: { width: 440, height: 280 },
@@ -99,9 +99,9 @@ const baseNodes: AppNode[] = [
     type: 'card',
     position: { x: 640, y: 190 },
     data: {
-      title: '\ud83e\udd16 LLM',
+      title: '\ud83e\udde0 Brains (LLM Providers)',
       color: '#7CC4FF',
-      lines: ['Receives prompts from Channel', 'Consumes providers from External'],
+      lines: ['Xiaomi, DeepSeek, Grok, Hermes', 'Analyze requests, formulate answers'],
     },
     style: { width: 200, height: 90 },
     draggable: true,
@@ -111,9 +111,9 @@ const baseNodes: AppNode[] = [
     type: 'channel',
     position: { x: 640, y: 380 },
     data: {
-      title: '\ud83d\udcac CHANNEL \u00b7 Discord',
+      title: '\ud83d\udcac User Hub (Discord)',
       color: '#7CC4FF',
-      chips: ['Role: Category', 'Channel: Domain-Topic'],
+      chips: ['Prompts', 'Tasks', 'Chat', 'Interact'],
     },
     style: { width: 200, height: 80 },
     draggable: true,
@@ -123,9 +123,9 @@ const baseNodes: AppNode[] = [
     type: 'card',
     position: { x: 640, y: 560 },
     data: {
-      title: '\ud83d\uddc4\ufe0f DATA OUTPUT',
+      title: '\ud83d\uddc4\ufe0f Knowledge Base & Storage',
       color: '#7BD88F',
-      lines: ['Rclone \u2192 Drive', 'ArangoDB \u00b7 Neo4j', 'Daily push \u2192 Qdrant'],
+      lines: ['Obsidian Second Brain (notes)', 'Neo4j (relations) + Qdrant (vectors)', 'Google Drive + ArangoDB (metadata)', 'Daily push for semantic context'],
     },
     style: { width: 200, height: 120 },
     draggable: true,
@@ -135,10 +135,10 @@ const baseNodes: AppNode[] = [
     type: 'card',
     position: { x: 64, y: 580 },
     data: {
-      title: '\ud83e\udde0 Data Inputs',
+      title: '\ud83e\udde0 Knowledge Inputs',
       color: '#7BD88F',
       badge: { n: 1, emoji: '\ud83e\udde0' },
-      lines: ['Mostly Markdown and Images', 'Second Brain \u203a Obsidian (MacBook)'],
+      lines: ['Markdown & Images from Second Brain', 'Obsidian vault on MacBook'],
     },
     style: { width: 440, height: 250 },
     draggable: true,
@@ -194,13 +194,12 @@ const baseNodes: AppNode[] = [
     type: 'card',
     position: { x: 64, y: 870 },
     data: {
-      title: '\ud83e\ude96 Tools & Skills',
+      title: '\ud83e\udea9 Workstation & Tools',
       color: '#FF8FB8',
       lines: [
-        'TOOLS (n8n) \u00b7 API (world)',
-        'Skills + Compute, Fly.io',
-        '+ Azure \u2192 Resource \u2192 Key Vault (Security)',
-        'Second Brain integration',
+        'n8n automated workflows',
+        'Azure Key Vault (cloud key storage)',
+        'Web connections & API endpoints',
         'Bot spec: bot-spec.md (data source)',
       ],
     },
@@ -212,7 +211,7 @@ const baseNodes: AppNode[] = [
     type: 'card',
     position: { x: 64, y: 1030 },
     data: {
-      title: '\ud83e\uddbe HARNESS ORCHESTRATOR',
+      title: '\ud83e\uddbe Central Assistant (HERMESS & GrokBot)',
       color: '#FF8FB8',
       lines: ['GROKBOT + Hermes', 'Reads bot-spec.md for coordination', 'Assigns compute based on skills'],
     },

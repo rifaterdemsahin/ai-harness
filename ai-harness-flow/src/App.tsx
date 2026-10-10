@@ -38,7 +38,7 @@ import NotesPanel from './nodes/NotesPanel';
 import Toolbar from './nodes/Toolbar';
 import LabeledEdge from './edges/LabeledEdge';
 
-const APP_VERSION = '1.3.0';
+const APP_VERSION = '1.4.0';
 
 const nodeTypes: NodeTypes = {
   card: CardNode,
