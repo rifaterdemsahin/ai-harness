@@ -1,11 +1,11 @@
 # Antigravity Task Report
 
 ## Initialized Tasks
-- [ ] Separate data at the bottom
-- [ ] Tools above it as a different layer (Tools: Azure, Fly.io, n8n, Github)
-- [ ] Swim lanes and nodes lock to each other make them move inside
-- [ ] Add a duplicate node feature
-- [ ] Vertical scroll bar
-- [ ] Infinite canvas feeling
-- [ ] Node give a swimlane selector
-- [ ] Model Cost Breakdown: let me update the numbers
+- [x] Separate data at the bottom
+- [x] Tools above it as a different layer (Tools: Azure, Fly.io, n8n, Github)
+- [x] Swim lanes and nodes lock to each other make them move inside
+- [x] Add a duplicate node feature
+- [x] Vertical scroll bar
+- [x] Infinite canvas feeling
+- [x] Node give a swimlane selector
+- [x] Model Cost Breakdown: let me update the numbers
