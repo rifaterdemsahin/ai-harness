@@ -19,6 +19,7 @@ import CardNode from './nodes/CardNode';
 import ComputeNode from './nodes/ComputeNode';
 import ChannelNode from './nodes/ChannelNode';
 import NotesPanel from './nodes/NotesPanel';
+import Toolbar from './nodes/Toolbar';
 
 const nodeTypes: NodeTypes = {
   card: CardNode,
@@ -53,6 +54,25 @@ const App: React.FC = () => {
       );
     },
     [setNodes]
+  );
+
+  const handleLinksChange = useCallback(
+    (nodeId: string, links: string[]) => {
+      setNodes((nds) =>
+        nds.map((n) =>
+          n.id === nodeId ? { ...n, data: { ...n.data, links } } : n
+        )
+      );
+    },
+    [setNodes]
+  );
+
+  const handleNavigateToNode = useCallback(
+    (nodeId: string) => {
+      const target = nodes.find((n) => n.id === nodeId);
+      if (target) setSelectedNode(target);
+    },
+    [nodes]
   );
 
   const handlePaneClick = useCallback(() => {
@@ -96,12 +116,18 @@ const App: React.FC = () => {
             </div>
           </div>
         </Panel>
+        <Panel position="top-right">
+          <Toolbar nodes={nodes} />
+        </Panel>
       </ReactFlow>
 
       <NotesPanel
         node={selectedNode}
+        allNodes={nodes}
         onClose={() => setSelectedNode(null)}
         onNoteChange={handleNoteChange}
+        onLinksChange={handleLinksChange}
+        onNavigateToNode={handleNavigateToNode}
       />
     </div>
   );

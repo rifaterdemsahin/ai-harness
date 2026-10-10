@@ -8,25 +8,39 @@ export type CardData = {
   chips?: string[];
   toggles?: { label: string; on: boolean; note?: string }[];
   notes?: string;
+  links?: string[];
 };
 
 export type AppNode = Node<CardData>;
 
-const STORAGE_KEY = 'ai-harness-notes';
+const NOTES_KEY = 'ai-harness-notes';
+const LINKS_KEY = 'ai-harness-links';
 
 function loadNotes(): Record<string, string> {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    return JSON.parse(localStorage.getItem(NOTES_KEY) || '{}');
   } catch {
     return {};
   }
 }
 
 function saveNotes(notes: Record<string, string>) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+  localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
 }
 
-export { loadNotes, saveNotes };
+function loadLinks(): Record<string, string[]> {
+  try {
+    return JSON.parse(localStorage.getItem(LINKS_KEY) || '{}');
+  } catch {
+    return {};
+  }
+}
+
+function saveLinks(links: Record<string, string[]>) {
+  localStorage.setItem(LINKS_KEY, JSON.stringify(links));
+}
+
+export { loadNotes, saveNotes, loadLinks, saveLinks };
 
 const baseNodes: AppNode[] = [
   {
@@ -178,9 +192,14 @@ const baseNodes: AppNode[] = [
   },
 ];
 
-// Hydrate notes from localStorage
+// Hydrate notes and links from localStorage
 const savedNotes = loadNotes();
+const savedLinks = loadLinks();
 export const initialNodes: AppNode[] = baseNodes.map((n) => ({
   ...n,
-  data: { ...n.data, notes: savedNotes[n.id] || '' },
+  data: {
+    ...n.data,
+    notes: savedNotes[n.id] || '',
+    links: savedLinks[n.id] || [],
+  },
 }));
