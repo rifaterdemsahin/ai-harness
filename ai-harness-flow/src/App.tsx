@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   ReactFlow,
   Background,
@@ -8,6 +8,7 @@ import {
   useNodesState,
   useEdgesState,
   type NodeTypes,
+  type Node,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 
@@ -17,6 +18,7 @@ import { initialEdges } from './data/edges';
 import CardNode from './nodes/CardNode';
 import ComputeNode from './nodes/ComputeNode';
 import ChannelNode from './nodes/ChannelNode';
+import NotesPanel from './nodes/NotesPanel';
 
 const nodeTypes: NodeTypes = {
   card: CardNode,
@@ -27,11 +29,34 @@ const nodeTypes: NodeTypes = {
 const defaultViewport = { x: 0, y: 0, zoom: 0.7 };
 
 const App: React.FC = () => {
-  const [nodes, , onNodesChange] = useNodesState<AppNode>(initialNodes);
+  const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>(initialNodes);
   const [edges, , onEdgesChange] = useEdgesState(initialEdges);
+  const [selectedNode, setSelectedNode] = useState<AppNode | null>(null);
 
   const getNodeColor = useCallback((node: AppNode) => {
     return (node.data as { color?: string })?.color ?? '#2B3F66';
+  }, []);
+
+  const handleNodeClick = useCallback(
+    (_: React.MouseEvent, node: Node) => {
+      setSelectedNode(node as AppNode);
+    },
+    []
+  );
+
+  const handleNoteChange = useCallback(
+    (nodeId: string, note: string) => {
+      setNodes((nds) =>
+        nds.map((n) =>
+          n.id === nodeId ? { ...n, data: { ...n.data, notes: note } } : n
+        )
+      );
+    },
+    [setNodes]
+  );
+
+  const handlePaneClick = useCallback(() => {
+    setSelectedNode(null);
   }, []);
 
   return (
@@ -41,6 +66,8 @@ const App: React.FC = () => {
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        onNodeClick={handleNodeClick}
+        onPaneClick={handlePaneClick}
         nodeTypes={nodeTypes}
         fitView
         fitViewOptions={{ padding: 64 }}
@@ -70,6 +97,12 @@ const App: React.FC = () => {
           </div>
         </Panel>
       </ReactFlow>
+
+      <NotesPanel
+        node={selectedNode}
+        onClose={() => setSelectedNode(null)}
+        onNoteChange={handleNoteChange}
+      />
     </div>
   );
 };

@@ -7,11 +7,28 @@ export type CardData = {
   lines?: string[];
   chips?: string[];
   toggles?: { label: string; on: boolean; note?: string }[];
+  notes?: string;
 };
 
 export type AppNode = Node<CardData>;
 
-export const initialNodes: AppNode[] = [
+const STORAGE_KEY = 'ai-harness-notes';
+
+function loadNotes(): Record<string, string> {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+  } catch {
+    return {};
+  }
+}
+
+function saveNotes(notes: Record<string, string>) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+}
+
+export { loadNotes, saveNotes };
+
+const baseNodes: AppNode[] = [
   {
     id: 'compute',
     type: 'compute',
@@ -160,3 +177,10 @@ export const initialNodes: AppNode[] = [
     draggable: true,
   },
 ];
+
+// Hydrate notes from localStorage
+const savedNotes = loadNotes();
+export const initialNodes: AppNode[] = baseNodes.map((n) => ({
+  ...n,
+  data: { ...n.data, notes: savedNotes[n.id] || '' },
+}));
