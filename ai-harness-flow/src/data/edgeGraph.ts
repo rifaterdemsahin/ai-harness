@@ -1,37 +1,29 @@
 import { MarkerType, type Edge } from '@xyflow/react';
 import type { AppNode } from './nodes';
 
-/**
- * PART 6 — Persistence.
- * Edges live in localStorage next to the notes, seeded from the list below.
- */
 export const EDGES_KEY = 'ai-harness-edges';
-
 export type EdgeKind = 'seed' | 'user' | 'note';
-
 export type GraphEdge = {
-  id: string;
-  source: string;
-  target: string;
-  sourceHandle?: string | null;
-  targetHandle?: string | null;
-  label?: string;
-  color?: string;
-  kind: EdgeKind;
+  id: string; source: string; target: string;
+  sourceHandle?: string | null; targetHandle?: string | null;
+  label?: string; color?: string; kind: EdgeKind;
 };
 
-/** Seed data required by the spec (part 6). */
 export const SEED_EDGES: GraphEdge[] = [
-  { id: 'seed-compute-llm', source: 'compute', target: 'llm', label: 'processes', kind: 'seed' },
-  { id: 'seed-external-llm', source: 'external', target: 'llm', label: 'supplies', kind: 'seed' },
-  { id: 'seed-hermess-channel', source: 'hermess', target: 'channel', label: 'serves', kind: 'seed' },
-  { id: 'seed-hermess-tools', source: 'hermess', target: 'tools', label: 'uses', kind: 'seed' },
-  { id: 'seed-inputs-data', source: 'dataInputs', target: 'dataOutput', label: 'stores', kind: 'seed' },
-  { id: 'seed-compute-hermess', source: 'compute', target: 'hermess', label: 'hosts', kind: 'seed' },
-  { id: 'seed-hermess-compute', source: 'hermess', target: 'compute', label: 'directs', kind: 'seed' },
+  { id: 'seed-ingress-orch', source: 'ingress', target: 'orchestrator', label: 'Prompts', color: '#7CC4FF', kind: 'seed' },
+  { id: 'seed-orch-deepseek', source: 'orchestrator', target: 'deepseek', label: 'Smart Route', color: '#F2994A', kind: 'seed' },
+  { id: 'seed-orch-xiaomi', source: 'orchestrator', target: 'xiaomi', label: 'Smart Route', color: '#F2994A', kind: 'seed' },
+  { id: 'seed-orch-hermes', source: 'orchestrator', target: 'hermes-ai', label: 'Smart Route', color: '#F2994A', kind: 'seed' },
+  { id: 'seed-orch-grok', source: 'orchestrator', target: 'grok', label: 'Smart Route', color: '#F2994A', kind: 'seed' },
+  { id: 'seed-deepseek-hetzner', source: 'deepseek', target: 'hetzner', label: 'processes', color: '#4FD1C5', kind: 'seed' },
+  { id: 'seed-xiaomi-hetzner', source: 'xiaomi', target: 'hetzner', label: 'processes', color: '#4FD1C5', kind: 'seed' },
+  { id: 'seed-hermes-macmini', source: 'hermes-ai', target: 'macmini', label: 'processes', color: '#B79CFF', kind: 'seed' },
+  { id: 'seed-grok-skull', source: 'grok', target: 'skull', label: 'processes', color: '#B79CFF', kind: 'seed' },
+  { id: 'seed-macmini-obsidian', source: 'macmini', target: 'obsidian', label: 'syncs', color: '#7BD88F', kind: 'seed' },
+  { id: 'seed-hetzner-db', source: 'hetzner', target: 'db', label: 'stores', color: '#7BD88F', kind: 'seed' },
+  { id: 'seed-skull-n8n', source: 'skull', target: 'n8n', label: 'triggers', color: '#FF8FB8', kind: 'seed' },
 ];
 
-/** PART 5 — edge colour inherits from the source node's border colour. */
 export function nodeColor(nodes: AppNode[], id: string): string {
   const node = nodes.find((n) => n.id === id);
   return ((node?.data as { color?: string } | undefined)?.color) ?? '#C9D3E3';
@@ -41,7 +33,6 @@ export function edgeKey(edge: { source: string; target: string }): string {
   return `${edge.source}->${edge.target}`;
 }
 
-/** PART 1 — no self-connections and no duplicate edges (same source + target). */
 export function dedupeGraphEdges(edges: GraphEdge[]): GraphEdge[] {
   const seen = new Set<string>();
   const out: GraphEdge[] = [];
@@ -55,7 +46,6 @@ export function dedupeGraphEdges(edges: GraphEdge[]): GraphEdge[] {
   return out;
 }
 
-/** PART 3 — every [[node-id]] in a note becomes an edge, marked kind: 'note'. */
 export function deriveNoteEdges(nodes: AppNode[]): GraphEdge[] {
   const ids = new Set(nodes.map((n) => n.id));
   const out: GraphEdge[] = [];
@@ -65,13 +55,7 @@ export function deriveNoteEdges(nodes: AppNode[]): GraphEdge[] {
     refs.forEach((ref) => {
       const target = ref.slice(2, -2);
       if (!ids.has(target) || target === node.id) return;
-      out.push({
-        id: `note-${node.id}-${target}`,
-        source: node.id,
-        target,
-        label: 'note ref',
-        kind: 'note',
-      });
+      out.push({ id: `note-${node.id}-${target}`, source: node.id, target, label: 'note ref', kind: 'note' });
     });
   });
   return out;
@@ -87,62 +71,45 @@ export function loadGraphEdges(): GraphEdge[] {
       return typeof candidate.source === 'string' && typeof candidate.target === 'string';
     });
     return parsed.length ? parsed : SEED_EDGES;
-  } catch {
-    return SEED_EDGES;
-  }
+  } catch { return SEED_EDGES; }
 }
 
 export function saveGraphEdges(edges: GraphEdge[]) {
   localStorage.setItem(EDGES_KEY, JSON.stringify(edges));
 }
 
-/** Graph edges → React Flow edges (styling, arrowheads, note edges dashed). */
 export function graphToFlowEdges(graph: GraphEdge[], nodes: AppNode[]): Edge[] {
   const ids = new Set(nodes.map((n) => n.id));
   return graph
     .filter((e) => ids.has(e.source) && ids.has(e.target) && e.source !== e.target)
     .map((e) => {
       const color = e.color || nodeColor(nodes, e.source);
-      const dashed = e.kind === 'note';
+      const dashed = e.kind === 'note' || e.id.includes('obsidian');
       return {
-        id: e.id,
-        source: e.source,
-        target: e.target,
-        sourceHandle: e.sourceHandle ?? undefined,
-        targetHandle: e.targetHandle ?? undefined,
-        type: 'labeled',
-        animated: dashed,
-        label: e.label,
+        id: e.id, source: e.source, target: e.target,
+        sourceHandle: e.sourceHandle ?? undefined, targetHandle: e.targetHandle ?? undefined,
+        type: 'labeled', animated: dashed, label: e.label,
         data: { kind: e.kind, color },
-        style: {
-          stroke: color,
-          strokeWidth: 2,
-          ...(dashed ? { strokeDasharray: '6 4' } : {}),
-        },
+        style: { stroke: color, strokeWidth: 2, ...(dashed ? { strokeDasharray: '6 4' } : {}) },
         markerEnd: { type: MarkerType.ArrowClosed, color },
       } as Edge;
     });
 }
 
-/** React Flow edges → persistable graph edges. */
 export function flowToGraphEdges(edges: Edge[]): GraphEdge[] {
   return edges.map((e) => ({
-    id: e.id,
-    source: e.source,
-    target: e.target,
-    sourceHandle: e.sourceHandle ?? null,
-    targetHandle: e.targetHandle ?? null,
+    id: e.id, source: e.source, target: e.target,
+    sourceHandle: e.sourceHandle ?? null, targetHandle: e.targetHandle ?? null,
     label: typeof e.label === 'string' ? e.label : undefined,
     color: (e.data as { color?: string } | undefined)?.color,
     kind: ((e.data as { kind?: EdgeKind } | undefined)?.kind) ?? 'user',
   }));
 }
 
-/** Human-readable edge list for Copy All / Download. */
 export function describeEdges(edges: Edge[]): string[] {
   return edges.map((e) => {
     const kind = (e.data as { kind?: string } | undefined)?.kind ?? 'user';
-    const label = typeof e.label === 'string' && e.label ? ` — ${e.label}` : '';
-    return `${e.source} → ${e.target}${label} [${kind}]`;
+    const label = typeof e.label === 'string' && e.label ? ` \u2014 ${e.label}` : '';
+    return `${e.source} \u2192 ${e.target}${label} [${kind}]`;
   });
 }

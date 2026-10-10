@@ -1,30 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Handle, Position, type NodeProps } from '@xyflow/react';
 import type { CardData } from '../data/nodes';
 import Badge from './Badge';
-import HostIcon, { hostIconForLine } from '../components/HostIcon';
 
 const ComputeNode: React.FC<NodeProps> = ({ data }) => {
-  const { title, color, badge, toggles: initialToggles, lines } = data as CardData;
-
-  const [toggles, setToggles] = useState(
-    initialToggles?.map((t) => ({ ...t })) ?? []
-  );
-
-  const handleToggle = (index: number) => {
-    setToggles((prev) =>
-      prev.map((t, i) => (i === index ? { ...t, on: !t.on } : t))
-    );
-  };
+  const { title, color, badge, lines } = data as CardData;
+  const subtitle = (data as { subtitle?: string }).subtitle || '';
 
   return (
-    <div
-      className="card-node"
-      style={{ borderColor: color }}
-      tabIndex={0}
-      role="group"
-      aria-label={title || 'Compute node'}
-    >
+    <div className="card-node compute-node" style={{ borderColor: color }} tabIndex={0} role="group" aria-label={title || 'Compute node'}>
       <Handle type="target" id="top" position={Position.Top} isConnectable={true} />
       <Handle type="target" id="left" position={Position.Left} isConnectable={true} />
       <Handle type="source" id="bottom" position={Position.Bottom} isConnectable={true} />
@@ -34,29 +18,12 @@ const ComputeNode: React.FC<NodeProps> = ({ data }) => {
         {badge && <Badge n={badge.n} emoji={badge.emoji} color={color} />}
         {title && <span className="card-title" style={{ color }}>{title}</span>}
       </div>
-
-      {toggles.map((toggle, i) => (
-        <div key={i} className={`toggle-row ${!toggle.on ? 'dimmed' : ''}`}>
-          <button
-            className="toggle-btn"
-            role="switch"
-            aria-checked={toggle.on}
-            aria-label={`${toggle.label} toggle`}
-            onClick={() => handleToggle(i)}
-            style={{ background: toggle.on ? color : '#2B3F66' }}
-          />
-          <span>{toggle.label}</span>
-          {toggle.note && <span className="toggle-note">({toggle.note})</span>}
-        </div>
-      ))}
+      {subtitle && <div className="node-subtitle">{subtitle}</div>}
 
       {lines && lines.length > 0 && (
-        <div className="card-lines" style={{ marginTop: 8 }}>
+        <div className="card-lines" style={{ marginTop: 6 }}>
           {lines.map((line, i) => (
-            <span key={i} className="card-line host-line">
-              <HostIcon name={hostIconForLine(line)} size={15} color={color} />
-              <span>{line}</span>
-            </span>
+            <span key={i} className="card-line">{line}</span>
           ))}
         </div>
       )}

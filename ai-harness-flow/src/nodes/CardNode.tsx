@@ -5,15 +5,10 @@ import Badge from './Badge';
 
 const CardNode: React.FC<NodeProps> = ({ data }) => {
   const { title, color, badge, lines } = data as CardData;
+  const subtitle = (data as { subtitle?: string }).subtitle || '';
 
   return (
-    <div
-      className="card-node"
-      style={{ borderColor: color }}
-      tabIndex={0}
-      role="group"
-      aria-label={title || 'Card node'}
-    >
+    <div className="card-node" style={{ borderColor: color }} tabIndex={0} role="group" aria-label={title || 'Card node'}>
       <Handle type="target" id="top" position={Position.Top} isConnectable={true} />
       <Handle type="target" id="left" position={Position.Left} isConnectable={true} />
       <Handle type="source" id="bottom" position={Position.Bottom} isConnectable={true} />
@@ -25,6 +20,7 @@ const CardNode: React.FC<NodeProps> = ({ data }) => {
           {title && <span className="card-title" style={{ color }}>{title}</span>}
         </div>
       )}
+      {subtitle && <div className="node-subtitle">{subtitle}</div>}
 
       {lines && lines.length > 0 && (
         <div className="card-lines">

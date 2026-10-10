@@ -603,3 +603,154 @@ html, body, #root {
     padding: 5px 10px;
   }
 }
+/* === v1.5 Layer Architecture Styles === */
+
+/* Node dim/highlight */
+.node-dim { opacity: 0.25; transition: opacity 0.2s; }
+.edge-dim { opacity: 0.15; transition: opacity 0.2s; }
+.edge-hi { opacity: 1; transition: opacity 0.2s; }
+
+/* Layer labels */
+.layer-labels {
+  position: fixed;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 80px;
+  pointer-events: none;
+}
+.layer-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #4a5568;
+  writing-mode: horizontal-tb;
+  white-space: nowrap;
+}
+
+/* Header */
+.header-panel h1 {
+  font-size: 22px;
+  letter-spacing: 1px;
+}
+
+/* Cost badge */
+.cost-badge {
+  background: rgba(123, 216, 143, 0.12);
+  border: 1px solid rgba(123, 216, 143, 0.3);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #7BD88F;
+  pointer-events: auto;
+}
+
+/* Filter pills */
+.filter-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  pointer-events: auto;
+  max-width: 500px;
+  justify-content: flex-end;
+}
+.filter-pill {
+  background: var(--card-fill);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 5px 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.filter-pill:hover {
+  border-color: var(--color-llm);
+  background: #1e2f4d;
+}
+.filter-pill.active {
+  border-color: var(--color-data);
+  background: rgba(123, 216, 143, 0.12);
+  color: #7BD88F;
+  box-shadow: 0 0 12px rgba(123, 216, 143, 0.2);
+}
+
+/* Legend */
+.legend {
+  display: flex;
+  gap: 20px;
+  background: var(--card-fill);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 8px 20px;
+  pointer-events: auto;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.legend-label {
+  font-size: 11px;
+  color: var(--text);
+  opacity: 0.8;
+}
+
+/* Model node */
+.model-node {
+  text-align: center;
+  padding: 12px 14px;
+}
+.model-icon {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+/* Data node */
+.data-node {
+  text-align: center;
+  padding: 12px 14px;
+}
+.data-icon {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+/* Ingress node */
+.ingress-node {
+  text-align: center;
+  padding: 16px;
+}
+.ingress-icon {
+  font-size: 24px;
+  margin-bottom: 6px;
+}
+
+/* Node subtitle */
+.node-subtitle {
+  font-size: 11px;
+  opacity: 0.55;
+  font-style: italic;
+  margin-top: 4px;
+}
+
+@media (max-width: 640px) {
+  .filter-pills { max-width: 100%; }
+  .filter-pill { font-size: 10px; padding: 4px 10px; }
+  .legend { flex-wrap: wrap; gap: 12px; }
+  .layer-labels { display: none; }
+  .cost-badge { font-size: 11px; padding: 4px 10px; }
+}
