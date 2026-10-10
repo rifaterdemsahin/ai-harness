@@ -25,10 +25,10 @@ const ComputeNode: React.FC<NodeProps> = ({ data }) => {
       role="group"
       aria-label={title || 'Compute node'}
     >
-      <Handle type="target" position={Position.Top} />
-      <Handle type="target" position={Position.Left} />
-      <Handle type="source" position={Position.Bottom} />
-      <Handle type="source" position={Position.Right} />
+      <Handle type="target" id="top" position={Position.Top} isConnectable={true} />
+      <Handle type="target" id="left" position={Position.Left} isConnectable={true} />
+      <Handle type="source" id="bottom" position={Position.Bottom} isConnectable={true} />
+      <Handle type="source" id="right" position={Position.Right} isConnectable={true} />
 
       <div className="card-header">
         {badge && <Badge n={badge.n} emoji={badge.emoji} color={color} />}

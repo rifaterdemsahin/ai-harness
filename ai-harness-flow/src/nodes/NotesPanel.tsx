@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
+import type { Edge } from '@xyflow/react';
 import type { AppNode } from '../data/nodes';
 import { saveNotes, loadNotes, saveLinks, loadLinks } from '../data/nodes';
 
 interface NotesPanelProps {
   node: AppNode | null;
   allNodes: AppNode[];
+  edges: Edge[];
   onClose: () => void;
   onNoteChange: (nodeId: string, note: string) => void;
   onLinksChange: (nodeId: string, links: string[]) => void;
@@ -40,7 +42,7 @@ function renderNoteWithLinks(text: string, onNavigate: (id: string) => void): Re
   });
 }
 
-const NotesPanel: React.FC<NotesPanelProps> = ({ node, allNodes, onClose, onNoteChange, onLinksChange, onNavigateToNode }) => {
+const NotesPanel: React.FC<NotesPanelProps> = ({ node, allNodes, edges, onClose, onNoteChange, onLinksChange, onNavigateToNode }) => {
   const [note, setNote] = useState('');
   const [links, setLinks] = useState<string[]>([]);
   const [newLink, setNewLink] = useState('');
@@ -142,19 +144,23 @@ const NotesPanel: React.FC<NotesPanelProps> = ({ node, allNodes, onClose, onNote
         </div>
       )}
 
-      {/* Cross-references to other nodes */}
+      {/* PART 2 — Cross-references: chips highlight based on edge existence */}
       {otherNodes.length > 0 && (
         <div className="notes-xrefs">
           <span className="notes-xrefs-label">Link to node:</span>
           <div className="notes-xrefs-chips">
             {otherNodes.map((n) => {
               const nd = n.data as { title?: string; color?: string };
-              const isActive = note.includes(`[[${n.id}]]`);
+              const hasEdge = edges.some(
+                (e) =>
+                  (e.source === node.id && e.target === n.id) ||
+                  (e.source === n.id && e.target === node.id),
+              );
               return (
                 <button
                   key={n.id}
-                  className={`xref-chip ${isActive ? 'active' : ''}`}
-                  style={{ borderColor: nd.color, color: isActive ? '#0E1626' : nd.color, background: isActive ? nd.color : 'transparent' }}
+                  className={`xref-chip ${hasEdge ? 'active' : ''}`}
+                  style={{ borderColor: nd.color, color: hasEdge ? '#0E1626' : nd.color, background: hasEdge ? nd.color : 'transparent' }}
                   onClick={() => {
                     const ref = `[[${n.id}]]`;
                     const updated = note.includes(ref) ? note.replace(ref, '').replace(/\n{3,}/g, '\n\n').trim() : note + (note ? '\n' : '') + ref;
@@ -164,7 +170,7 @@ const NotesPanel: React.FC<NotesPanelProps> = ({ node, allNodes, onClose, onNote
                     saveNotes(notes);
                     onNoteChange(node.id, updated);
                   }}
-                  title={isActive ? `Remove link to ${n.id}` : `Insert [[${n.id}]] into notes`}
+                  title={hasEdge ? `Edge exists to ${n.id} · click to toggle [[ref]]` : `Insert [[${n.id}]] into notes`}
                 >
                   {nd.title || n.id}
                 </button>

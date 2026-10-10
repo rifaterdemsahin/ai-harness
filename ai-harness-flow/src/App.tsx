@@ -102,16 +102,7 @@ const App: React.FC = () => {
     [setEdges]
   );
 
-  // PART 4 — double-click an edge to add or edit its label.
-  const handleEdgeDoubleClick = useCallback(
-    (_: React.MouseEvent, edge: Edge) => {
-      const current = typeof edge.label === 'string' ? edge.label : '';
-      const next = window.prompt('Edge label', current);
-      if (next === null) return;
-      setEdges((eds) => eds.map((e) => (e.id === edge.id ? { ...e, label: next } : e)));
-    },
-    [setEdges]
-  );
+  // PART 4 — inline label editing is now handled inside LabeledEdge.
 
   // PART 3 — deleting a note-derived edge removes its [[ref]] from the note.
   const handleEdgesDelete = useCallback(
@@ -207,7 +198,6 @@ const App: React.FC = () => {
         onConnect={handleConnect}
         onReconnect={handleReconnect}
         onEdgesDelete={handleEdgesDelete}
-        onEdgeDoubleClick={handleEdgeDoubleClick}
         onNodeClick={handleNodeClick}
         onNodeMouseEnter={(_: React.MouseEvent, node: Node) => setHovered(node.id)}
         onNodeMouseLeave={() => setHovered(null)}
@@ -251,6 +241,7 @@ const App: React.FC = () => {
       <NotesPanel
         node={selectedNode}
         allNodes={nodes}
+        edges={allEdges}
         onClose={() => setSelectedNode(null)}
         onNoteChange={handleNoteChange}
         onLinksChange={handleLinksChange}

@@ -83,6 +83,19 @@ html, body, #root {
   font-family: 'IBM Plex Sans', system-ui, sans-serif;
   pointer-events: all;
   white-space: nowrap;
+  cursor: pointer;
+}
+
+.edge-label-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 10px;
+  font-weight: 500;
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  width: 70px;
+  padding: 0;
+  color: inherit;
 }
 
 /* PART 5 — hovering a node highlights its edges and dims the rest */
