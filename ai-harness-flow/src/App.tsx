@@ -17,6 +17,7 @@ import DataNode from './nodes/DataNode';
 import NotesPanel from './nodes/NotesPanel';
 import Toolbar from './nodes/Toolbar';
 import LabeledEdge from './edges/LabeledEdge';
+import SwimlaneNode from './nodes/SwimlaneNode';
 
 const APP_VERSION = '1.6.0';
 
@@ -27,18 +28,11 @@ const FILTER_MAP: Record<string, string[]> = {
   'Memory & Tools': ['macmini', 'skull', 'obsidian', 'n8n', 'qdrant', 'googledrive', 'neo4j', 'arangodb'],
 };
 
-const nodeTypes: NodeTypes = { card: CardNode, compute: ComputeNode, ingress: IngressNode, model: ModelNode, data: DataNode };
+const nodeTypes: NodeTypes = { card: CardNode, compute: ComputeNode, ingress: IngressNode, model: ModelNode, data: DataNode, swimlane: SwimlaneNode };
 const edgeTypes: EdgeTypes = { labeled: LabeledEdge };
 const defaultViewport = { x: 0, y: 0, zoom: 0.55 };
 
-const SWIMLANES = [
-  { label: 'L1 INGRESS', y: 60, h: 140, color: 'rgba(124,196,255,0.06)' },
-  { label: 'L2 ORCHESTRATION', y: 220, h: 160, color: 'rgba(242,153,74,0.06)' },
-  { label: 'L3 AI MODELS', y: 400, h: 160, color: 'rgba(79,209,197,0.06)' },
-  { label: 'L4 COMPUTE', y: 580, h: 290, color: 'rgba(242,153,74,0.06)' },
-  { label: 'L5 TOOLS', y: 890, h: 160, color: 'rgba(255,143,184,0.06)' },
-  { label: 'L6 DATA SOURCES', y: 1060, h: 140, color: 'rgba(123,216,143,0.06)' },
-];
+
 
 const LEGEND = [
   { label: 'Ingress', color: '#7CC4FF' },
@@ -64,6 +58,20 @@ const App: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<string>('All Components');
   const [showCostModal, setShowCostModal] = useState(false);
   const [costNotes, setCostNotes] = useState(loadCostNotes());
+  const [costs, setCosts] = useState(() => {
+    try {
+      const saved = localStorage.getItem('ai-harness-costs');
+      if (saved) return JSON.parse(saved);
+    } catch(e) {}
+    return COST_BREAKDOWN;
+  });
+  
+  const handleCostChange = (idx: number, newCost: string) => {
+    const updated = [...costs];
+    updated[idx].cost = newCost;
+    setCosts(updated);
+    localStorage.setItem('ai-harness-costs', JSON.stringify(updated));
+  };
 
   useEffect(() => { saveGraphEdges(flowToGraphEdges(edges)); }, [edges]);
   const noteEdges = useMemo(() => deriveNoteEdges(nodes), [nodes]);
@@ -98,6 +106,25 @@ const App: React.FC = () => {
   }, [setNodes]);
 
   // Delete node + connected edges
+  const handleDuplicateNode = useCallback((nodeId: string) => {
+    setNodes((nds) => {
+      const nodeToDuplicate = nds.find((n) => n.id === nodeId);
+      if (!nodeToDuplicate) return nds;
+      const newId = `${nodeId}-copy-${Date.now()}`;
+      const newNode = {
+        ...nodeToDuplicate,
+        id: newId,
+        position: { x: nodeToDuplicate.position.x + 40, y: nodeToDuplicate.position.y + 40 },
+        selected: false,
+      };
+      return [...nds, newNode];
+    });
+  }, [setNodes]);
+
+  const handleParentChange = useCallback((nodeId: string, parentId: string) => {
+    setNodes((nds) => nds.map((n) => n.id === nodeId ? { ...n, parentId, extent: parentId ? 'parent' : undefined } : n));
+  }, [setNodes]);
+
   const handleDeleteNode = useCallback((nodeId: string) => {
     setNodes((nds) => nds.filter((n) => n.id !== nodeId));
     setEdges((eds) => eds.filter((e) => e.source !== nodeId && e.target !== nodeId));
@@ -156,19 +183,14 @@ const App: React.FC = () => {
         minZoom={0.2} maxZoom={1.5} defaultViewport={defaultViewport}
         nodesDraggable nodesConnectable elementsSelectable
         proOptions={{ hideAttribution: true }}
+        panOnScroll={true}
+        selectionOnDrag={true}
       >
         <Background color="#ffffff" gap={20} size={1} />
         <Controls showInteractive={false} />
         <MiniMap nodeColor={getNodeColor} maskColor="rgba(14, 22, 38, 0.75)" style={{ background: '#16223A' }} />
 
-        {/* Swimlane bands */}
-        <Panel position="top-left" style={{ top: 0, left: 0, pointerEvents: 'none', width: '100%' }}>
-          {SWIMLANES.map((lane) => (
-            <div key={lane.label} className="swimlane" style={{ top: lane.y, height: lane.h, background: lane.color }}>
-              <span className="swimlane-label">{lane.label}</span>
-            </div>
-          ))}
-        </Panel>
+        
 
         {/* Header */}
         <Panel position="top-left">
@@ -211,7 +233,7 @@ const App: React.FC = () => {
         </Panel>
       </ReactFlow>
 
-      <NotesPanel node={selectedNode} allNodes={nodes} edges={allEdges} onClose={() => setSelectedNode(null)} onNoteChange={handleNoteChange} onLinksChange={handleLinksChange} onNavigateToNode={handleNavigateToNode} onDelete={handleDeleteNode} onEditTitle={handleEditTitle} onEditLines={handleEditLines} />
+      <NotesPanel node={selectedNode} allNodes={nodes} edges={allEdges} onClose={() => setSelectedNode(null)} onNoteChange={handleNoteChange} onLinksChange={handleLinksChange} onNavigateToNode={handleNavigateToNode} onDelete={handleDeleteNode} onEditTitle={handleEditTitle} onEditLines={handleEditLines} onDuplicate={handleDuplicateNode} onParentChange={handleParentChange} />
 
       {/* Cost Modal */}
       {showCostModal && (

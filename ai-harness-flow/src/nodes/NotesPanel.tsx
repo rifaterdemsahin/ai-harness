@@ -14,6 +14,8 @@ interface NotesPanelProps {
   onDelete?: (nodeId: string) => void;
   onEditTitle?: (nodeId: string, title: string) => void;
   onEditLines?: (nodeId: string, lines: string[]) => void;
+  onDuplicate?: (nodeId: string) => void;
+  onParentChange?: (nodeId: string, parentId: string) => void;
 }
 
 function renderNoteWithLinks(text: string, onNavigate: (id: string) => void): React.ReactNode[] {
@@ -31,7 +33,7 @@ function renderNoteWithLinks(text: string, onNavigate: (id: string) => void): Re
   });
 }
 
-const NotesPanel: React.FC<NotesPanelProps> = ({ node, allNodes, edges, onClose, onNoteChange, onLinksChange, onNavigateToNode, onDelete, onEditTitle, onEditLines }) => {
+const NotesPanel: React.FC<NotesPanelProps> = ({ node, allNodes, edges, onClose, onNoteChange, onLinksChange, onNavigateToNode, onDelete, onEditTitle, onEditLines, onDuplicate, onParentChange }) => {
   const [note, setNote] = useState('');
   const [links, setLinks] = useState<string[]>([]);
   const [newLink, setNewLink] = useState('');
@@ -106,6 +108,7 @@ const NotesPanel: React.FC<NotesPanelProps> = ({ node, allNodes, edges, onClose,
         )}
         <div className="notes-actions">
           <button className="notes-btn copy-btn" onClick={handleCopy} title="Copy">{copied ? '\u2713 Copied' : '\ud83d\udccb Copy'}</button>
+          {onDuplicate && <button className="notes-btn" onClick={() => onDuplicate(node.id)} title="Duplicate node">⧉</button>}
           {onDelete && <button className="notes-btn delete-btn" onClick={handleDelete} title="Delete node">\ud83d\uddd1</button>}
           <button className="notes-btn close-btn" onClick={onClose} title="Close">\u2715</button>
         </div>
