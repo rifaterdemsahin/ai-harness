@@ -45,7 +45,7 @@ export { loadNotes, saveNotes, loadLinks, saveLinks };
 /** Clean notes — no TODOs, no stale instructions. */
 export const DEFAULT_NOTES: Record<string, string> = {
   channel: 'Role maps to Category\nChannel maps to Domain-Topic',
-  coordinator: 'Ensures bots are always running with compute',
+  coordinator: 'Reads bot-spec.md to assign compute to bots\nEnsures bots are always running\nMonitors via Grafana, auth via Azure',
   llm: 'Linked to External Providers for model access',
   dataOutput:
     'Rclone (PAP: Pull, Push, Archive)\nArangoDB for metadata\nNeo4j for relations\nDaily push to Qdrant for semantic context',
@@ -55,7 +55,7 @@ export const DEFAULT_NOTES: Record<string, string> = {
   desktop: 'Erdem codes locally and uses mobile\nHermes fallback model',
   tools:
     'Connected to Second Brain via [[dataOutput]]\nHermess orchestrates from [[hermess]]',
-  hermess: 'Harness Orchestrator — GROKBOT runs here',
+  hermess: 'Harness Orchestrator\nReads bot-spec.md for coordination\nAssigns compute based on skills and availability\nAzure + Grafana monitoring',
 };
 
 const baseNodes: AppNode[] = [
@@ -72,11 +72,11 @@ const baseNodes: AppNode[] = [
         { label: 'MacBook', on: false, note: '\u2192 LLM' },
       ],
       lines: [
-        'Hetzner ON \u2192 FAST, main coordinator',
-        'Hermes installed on all compute',
-        'Mac Mini ON \u2192 FAST',
-        'Skull Canyon ON \u2192 slow',
-        'GROKBOT on all hosts',
+        'Hetzner VPS \u2192 FAST, coordinator',
+        'Mac Mini \u2192 FAST (Apple Silicon)',
+        'Skull Canyon \u2192 slow (Intel NUC)',
+        'Hermes + GROKBOT on all hosts',
+        'Each host has different skills',
       ],
     },
     style: { width: 440, height: 280 },
@@ -89,9 +89,9 @@ const baseNodes: AppNode[] = [
     data: {
       title: '',
       color: '#F2994A',
-      lines: ['Main coordinator: Hetzner (datacenter)', '\u00b7 assigns hosts'],
+      lines: ['Main coordinator: Hetzner (datacenter)', '\u00b7 reads bot-spec.md, assigns bots to compute', '\u00b7 Azure auth + Grafana monitoring'],
     },
-    style: { width: 440, height: 72 },
+    style: { width: 440, height: 88 },
     draggable: true,
   },
   {
@@ -201,9 +201,10 @@ const baseNodes: AppNode[] = [
         'Skills + Compute, Fly.io',
         '+ Azure \u2192 Resource \u2192 Key Vault (Security)',
         'Second Brain integration',
+        'Bot spec: bot-spec.md (data source)',
       ],
     },
-    style: { width: 1312, height: 120 },
+    style: { width: 1312, height: 130 },
     draggable: true,
   },
   {
@@ -213,7 +214,7 @@ const baseNodes: AppNode[] = [
     data: {
       title: '\ud83e\uddbe HARNESS ORCHESTRATOR',
       color: '#FF8FB8',
-      lines: ['GROKBOT', 'Orchestrates tools and channel'],
+      lines: ['GROKBOT + Hermes', 'Reads bot-spec.md for coordination', 'Assigns compute based on skills'],
     },
     style: { width: 1312, height: 90 },
     draggable: true,
