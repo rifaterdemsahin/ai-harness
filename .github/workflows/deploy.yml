@@ -9,7 +9,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: npm }
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: ai-harness-flow/package-lock.json
       - name: Build flow diagram
         working-directory: ai-harness-flow
         run: npm ci && npm run build
