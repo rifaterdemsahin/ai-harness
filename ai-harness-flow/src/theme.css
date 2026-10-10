@@ -71,6 +71,40 @@ html, body, #root {
   gap: 7px;
 }
 
+/* PART 4 — edge labels rendered through EdgeLabelRenderer */
+.edge-label {
+  position: absolute;
+  background: #0E1626;
+  border: 1px solid #2B3F66;
+  border-radius: 6px;
+  padding: 1px 6px;
+  font-size: 10px;
+  font-weight: 500;
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+  pointer-events: all;
+  white-space: nowrap;
+}
+
+/* PART 5 — hovering a node highlights its edges and dims the rest */
+.react-flow__edge.edge-dim {
+  opacity: 0.12;
+  transition: opacity 0.15s ease;
+}
+
+.react-flow__edge.edge-hi {
+  opacity: 1;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.45));
+  transition: opacity 0.15s ease;
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke-width: 3;
+}
+
+.react-flow__edge-path {
+  cursor: pointer;
+}
+
 /* Header panel */
 .header-panel {
   pointer-events: none;

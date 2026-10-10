@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
+import type { Edge } from '@xyflow/react';
 import type { AppNode } from '../data/nodes';
 import { loadNotes, loadLinks } from '../data/nodes';
+import { describeEdges } from '../data/edgeGraph';
 
 interface ToolbarProps {
   nodes: AppNode[];
+  edges: Edge[];
 }
 
-const Toolbar: React.FC<ToolbarProps> = ({ nodes }) => {
+const Toolbar: React.FC<ToolbarProps> = ({ nodes, edges }) => {
   const [copiedAll, setCopiedAll] = useState(false);
 
   const getFullExport = (): string => {
@@ -45,8 +48,28 @@ const Toolbar: React.FC<ToolbarProps> = ({ nodes }) => {
       lines.push('');
     }
 
+    // PART 6 — edges are part of the export.
+    if (edges.length) {
+      lines.push('## Edges', '');
+      describeEdges(edges).forEach((line) => lines.push(`- ${line}`));
+      lines.push('');
+    }
+
     return lines.join('\n');
   };
+
+  const getJsonExport = (): string =>
+    JSON.stringify(
+      {
+        exportedAt: new Date().toISOString(),
+        nodes: nodes.map((n) => ({ id: n.id, title: (n.data as { title?: string }).title, position: n.position, data: n.data })),
+        notes: loadNotes(),
+        links: loadLinks(),
+        edges: describeEdges(edges),
+      },
+      null,
+      2
+    );
 
   const handleCopyAll = () => {
     navigator.clipboard.writeText(getFullExport()).then(() => {
@@ -55,31 +78,34 @@ const Toolbar: React.FC<ToolbarProps> = ({ nodes }) => {
     });
   };
 
-  const handleDownload = () => {
-    const content = getFullExport();
-    const blob = new Blob([content], { type: 'text/markdown' });
+  const download = (content: string, filename: string, type: string) => {
+    const blob = new Blob([content], { type });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'ai-harness-notes.md';
+    a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
   };
 
-  const notesCount = nodes.filter((n) => {
-    const notes = loadNotes();
-    return notes[n.id]?.trim();
-  }).length;
+  const handleDownload = () => download(getFullExport(), 'ai-harness-notes.md', 'text/markdown');
+  const handleDownloadJson = () => download(getJsonExport(), 'ai-harness-notes.json', 'application/json');
+
+  const notesCount = nodes.filter((n) => loadNotes()[n.id]?.trim()).length;
 
   return (
     <div className="toolbar">
-      <button className="toolbar-btn" onClick={handleCopyAll} title="Copy all notes + node data">
+      <button className="toolbar-btn" onClick={handleCopyAll} title="Copy all notes + node data + edges">
         {copiedAll ? '✓ Copied' : '📋 Copy All'}
       </button>
       <button className="toolbar-btn" onClick={handleDownload} title="Download notes as Markdown">
         ⬇ Download
       </button>
+      <button className="toolbar-btn" onClick={handleDownloadJson} title="Download notes + edges as JSON">
+        ⬇ JSON
+      </button>
       {notesCount > 0 && <span className="toolbar-badge">{notesCount} notes</span>}
+      <span className="toolbar-badge">{edges.length} edges</span>
     </div>
   );
 };
