@@ -3,5 +3,5 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  base: '/ai-harness-flow/',
+  base: '/ai-harness/ai-harness-flow/',
 });

@@ -6,13 +6,16 @@ concurrency: { group: pages, cancel-in-progress: true }
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ai-harness-flow
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 20, cache: npm }
       - run: npm ci && npm run build
       - uses: actions/upload-pages-artifact@v3
-        with: { path: dist }
+        with: { path: ai-harness-flow/dist }
   deploy:
     needs: build
     runs-on: ubuntu-latest
