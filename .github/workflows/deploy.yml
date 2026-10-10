@@ -6,16 +6,20 @@ concurrency: { group: pages, cancel-in-progress: true }
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ai-harness-flow
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 20, cache: npm }
-      - run: npm ci && npm run build
+      - name: Build flow diagram
+        working-directory: ai-harness-flow
+        run: npm ci && npm run build
+      - name: Assemble site
+        run: |
+          mkdir -p _site/ai-harness-flow
+          cp index.html _site/
+          cp -r ai-harness-flow/dist/* _site/ai-harness-flow/
       - uses: actions/upload-pages-artifact@v3
-        with: { path: ai-harness-flow/dist }
+        with: { path: _site }
   deploy:
     needs: build
     runs-on: ubuntu-latest

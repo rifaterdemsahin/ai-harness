@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Harness</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+      background: #0E1626;
+      color: #E8EEF8;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .container { max-width: 680px; text-align: center; }
+    h1 { font-size: 2.8rem; font-weight: 700; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
+    .subtitle { font-size: 1.1rem; color: #7CC4FF; margin-bottom: 2rem; }
+    .tagline { font-size: 1rem; color: #C9D3E3; margin-bottom: 3rem; line-height: 1.6; }
+    .tagline strong { color: #7BD88F; }
+    .card {
+      background: #16223A;
+      border: 1px solid #2B3F66;
+      border-radius: 14px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
+    .card h2 { font-size: 1.3rem; margin-bottom: 0.75rem; }
+    .card p { color: #C9D3E3; line-height: 1.6; font-size: 0.95rem; }
+    .card a { color: #7CC4FF; text-decoration: none; }
+    .card a:hover { text-decoration: underline; }
+    .bmad { border-color: #F2994A; }
+    .bmad h2 { color: #F2994A; }
+    .diagram { border-color: #7BD88F; }
+    .diagram h2 { color: #7BD88F; }
+    .cta {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.75rem 2rem;
+      background: #7BD88F;
+      color: #0E1626;
+      font-weight: 600;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 1rem;
+      transition: opacity 0.2s;
+    }
+    .cta:hover { opacity: 0.85; }
+    footer { margin-top: 3rem; color: #556; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>AI Harness</h1>
+    <p class="subtitle">Architecture Overview</p>
+    <p class="tagline">Our job: <strong>Delivery Pilot</strong> &middot; start from real, deliver value</p>
+
+    <div class="card bmad">
+      <h2>&#x1F4CB; BMAD at the Core</h2>
+      <p>
+        The AI Harness is built around the <strong>BMAD</strong> framework &mdash;
+        <strong>B</strong>uild, <strong>M</strong>easure, <strong>A</strong>djust, <strong>D</strong>eliver.
+        It defines how agents coordinate, which compute handles what, how data flows
+        from inputs through LLMs to outputs, and how external providers and tools plug in.
+        Every node in the architecture diagram reflects a BMAD decision: what to build on,
+        how to measure performance, where to adjust routing, and what value to deliver.
+      </p>
+      <p style="margin-top: 0.75rem;">
+        The diagram below is the living map of that system &mdash; interactive, always current,
+        and the single source of truth for how the pieces fit together.
+      </p>
+    </div>
+
+    <div class="card diagram">
+      <h2>&#x1F5FA;&#xFE0F; Interactive Architecture Diagram</h2>
+      <p>
+        Pan, zoom, and explore all 10 nodes and 10 edges of the AI Harness architecture.
+        Toggle compute hosts on and off. See data flow direction on every connection.
+      </p>
+      <a class="cta" href="./ai-harness-flow/">Open Diagram &rarr;</a>
+    </div>
+
+    <footer>
+      <a href="https://github.com/rifaterdemsahin/ai-harness" style="color:#7CC4FF;text-decoration:none;">GitHub</a>
+    </footer>
+  </div>
+</body>
+</html>
