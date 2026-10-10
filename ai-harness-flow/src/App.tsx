@@ -7,7 +7,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import './theme.css';
-import { initialNodes, loadNotes, saveNotes, type AppNode } from './data/nodes';
+import { initialNodes, loadNotes, saveNotes, loadCostNotes, saveCostNotes, type AppNode } from './data/nodes';
 import { dedupeGraphEdges, deriveNoteEdges, flowToGraphEdges, graphToFlowEdges, loadGraphEdges, nodeColor, saveGraphEdges } from './data/edgeGraph';
 import CardNode from './nodes/CardNode';
 import ComputeNode from './nodes/ComputeNode';
@@ -18,32 +18,42 @@ import NotesPanel from './nodes/NotesPanel';
 import Toolbar from './nodes/Toolbar';
 import LabeledEdge from './edges/LabeledEdge';
 
-const APP_VERSION = '1.5.0';
+const APP_VERSION = '1.6.0';
 
 const FILTER_MAP: Record<string, string[]> = {
   'Chat Prompt Loop': ['ingress', 'orchestrator'],
   'Model Dispatch': ['orchestrator', 'deepseek', 'xiaomi', 'hermes-ai', 'grok'],
-  'Compute Execution': ['deepseek', 'xiaomi', 'hermes-ai', 'grok', 'hetzner', 'macmini', 'skull'],
-  'Memory & Tools': ['macmini', 'skull', 'obsidian', 'db', 'n8n'],
+  'Compute Execution': ['deepseek', 'xiaomi', 'hermes-ai', 'grok', 'hetzner', 'macmini', 'skull', 'macbookpro', 'proxmox'],
+  'Memory & Tools': ['macmini', 'skull', 'obsidian', 'n8n', 'qdrant', 'googledrive', 'neo4j', 'arangodb'],
 };
 
 const nodeTypes: NodeTypes = { card: CardNode, compute: ComputeNode, ingress: IngressNode, model: ModelNode, data: DataNode };
 const edgeTypes: EdgeTypes = { labeled: LabeledEdge };
-const defaultViewport = { x: 0, y: 0, zoom: 0.65 };
+const defaultViewport = { x: 0, y: 0, zoom: 0.55 };
 
-const LAYERS = [
-  { label: 'L1 INGRESS', y: 80 },
-  { label: 'L2 ORCHESTRATION', y: 260 },
-  { label: 'L3 AI MODELS', y: 440 },
-  { label: 'L4 COMPUTE HARDWARE', y: 620 },
-  { label: 'L5 DATA & TOOLS', y: 820 },
+const SWIMLANES = [
+  { label: 'L1 INGRESS', y: 60, h: 140, color: 'rgba(124,196,255,0.06)' },
+  { label: 'L2 ORCHESTRATION', y: 220, h: 160, color: 'rgba(242,153,74,0.06)' },
+  { label: 'L3 AI MODELS', y: 400, h: 160, color: 'rgba(79,209,197,0.06)' },
+  { label: 'L4 COMPUTE', y: 580, h: 290, color: 'rgba(242,153,74,0.06)' },
+  { label: 'L5 TOOLS', y: 890, h: 160, color: 'rgba(255,143,184,0.06)' },
+  { label: 'L6 DATA SOURCES', y: 1060, h: 140, color: 'rgba(123,216,143,0.06)' },
 ];
 
 const LEGEND = [
-  { label: 'Ingress & Storage', color: '#7CC4FF' },
-  { label: 'Master Controller', color: '#F2994A' },
-  { label: 'AI Model Engine', color: '#4FD1C5' },
-  { label: 'Compute Hardware', color: '#F2994A' },
+  { label: 'Ingress', color: '#7CC4FF' },
+  { label: 'Controller', color: '#F2994A' },
+  { label: 'AI Models', color: '#4FD1C5' },
+  { label: 'Compute', color: '#F2994A' },
+  { label: 'Tools', color: '#FF8FB8' },
+  { label: 'Data', color: '#7BD88F' },
+];
+
+const COST_BREAKDOWN = [
+  { name: 'DeepSeek', cost: '$20/mo' },
+  { name: 'Xiaomi', cost: '$20/mo' },
+  { name: 'Hermes', cost: '$20/mo' },
+  { name: 'Grok', cost: 'Usage-based' },
 ];
 
 const App: React.FC = () => {
@@ -52,6 +62,8 @@ const App: React.FC = () => {
   const [selectedNode, setSelectedNode] = useState<AppNode | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<string>('All Components');
+  const [showCostModal, setShowCostModal] = useState(false);
+  const [costNotes, setCostNotes] = useState(loadCostNotes());
 
   useEffect(() => { saveGraphEdges(flowToGraphEdges(edges)); }, [edges]);
   const noteEdges = useMemo(() => deriveNoteEdges(nodes), [nodes]);
@@ -85,6 +97,22 @@ const App: React.FC = () => {
     }));
   }, [setNodes]);
 
+  // Delete node + connected edges
+  const handleDeleteNode = useCallback((nodeId: string) => {
+    setNodes((nds) => nds.filter((n) => n.id !== nodeId));
+    setEdges((eds) => eds.filter((e) => e.source !== nodeId && e.target !== nodeId));
+  }, [setNodes, setEdges]);
+
+  // Edit node title
+  const handleEditTitle = useCallback((nodeId: string, title: string) => {
+    setNodes((nds) => nds.map((n) => n.id === nodeId ? { ...n, data: { ...n.data, title } } : n));
+  }, [setNodes]);
+
+  // Edit node lines
+  const handleEditLines = useCallback((nodeId: string, lines: string[]) => {
+    setNodes((nds) => nds.map((n) => n.id === nodeId ? { ...n, data: { ...n.data, lines } } : n));
+  }, [setNodes]);
+
   const allEdges = useMemo(() => graphToFlowEdges(dedupeGraphEdges([...flowToGraphEdges(edges), ...noteEdges]), nodes), [edges, noteEdges, nodes]);
 
   const filteredNodeIds = useMemo(() => {
@@ -95,12 +123,8 @@ const App: React.FC = () => {
   const renderedEdges = useMemo(() => {
     return allEdges.map((e) => {
       let className = '';
-      if (hovered) {
-        className = e.source === hovered || e.target === hovered ? 'edge-hi' : 'edge-dim';
-      } else if (filteredNodeIds) {
-        const connected = filteredNodeIds.has(e.source) || filteredNodeIds.has(e.target);
-        className = connected ? 'edge-hi' : 'edge-dim';
-      }
+      if (hovered) { className = e.source === hovered || e.target === hovered ? 'edge-hi' : 'edge-dim'; }
+      else if (filteredNodeIds) { className = (filteredNodeIds.has(e.source) || filteredNodeIds.has(e.target)) ? 'edge-hi' : 'edge-dim'; }
       return { ...e, className: className || undefined };
     });
   }, [allEdges, hovered, filteredNodeIds]);
@@ -111,14 +135,12 @@ const App: React.FC = () => {
   const handleLinksChange = useCallback((nodeId: string, links: string[]) => { setNodes((nds) => nds.map((n) => (n.id === nodeId ? { ...n, data: { ...n.data, links } } : n))); }, [setNodes]);
   const handleNavigateToNode = useCallback((nodeId: string) => { const target = nodes.find((n) => n.id === nodeId); if (target) setSelectedNode(target); }, [nodes]);
   const handlePaneClick = useCallback(() => { setSelectedNode(null); }, []);
+  const handleCostNoteSave = useCallback((note: string) => { setCostNotes(note); saveCostNotes(note); }, []);
 
   return (
     <div style={{ width: '100%', height: '100dvh' }}>
       <ReactFlow
-        nodes={nodes.map((n) => ({
-          ...n,
-          className: filteredNodeIds && !filteredNodeIds.has(n.id) ? 'node-dim' : hovered && hovered !== n.id ? 'node-dim' : undefined,
-        }))}
+        nodes={nodes.map((n) => ({ ...n, className: filteredNodeIds && !filteredNodeIds.has(n.id) ? 'node-dim' : hovered && hovered !== n.id ? 'node-dim' : undefined }))}
         edges={renderedEdges}
         onNodesChange={onNodesChange} onEdgesChange={onEdgesChange}
         onConnect={handleConnect} onReconnect={handleReconnect}
@@ -131,7 +153,7 @@ const App: React.FC = () => {
         deleteKeyCode={['Backspace', 'Delete']}
         connectionLineStyle={{ stroke: '#FF8FB8', strokeWidth: 2, strokeDasharray: '4 4' }}
         fitView fitViewOptions={{ padding: 64 }}
-        minZoom={0.3} maxZoom={1.5} defaultViewport={defaultViewport}
+        minZoom={0.2} maxZoom={1.5} defaultViewport={defaultViewport}
         nodesDraggable nodesConnectable elementsSelectable
         proOptions={{ hideAttribution: true }}
       >
@@ -139,11 +161,13 @@ const App: React.FC = () => {
         <Controls showInteractive={false} />
         <MiniMap nodeColor={getNodeColor} maskColor="rgba(14, 22, 38, 0.75)" style={{ background: '#16223A' }} />
 
-        {/* Layer labels */}
-        <Panel position="top-left" style={{ top: 0, left: 0, pointerEvents: 'none' }}>
-          <div className="layer-labels">
-            {LAYERS.map((l) => <div key={l.label} className="layer-label">{l.label}</div>)}
-          </div>
+        {/* Swimlane bands */}
+        <Panel position="top-left" style={{ top: 0, left: 0, pointerEvents: 'none', width: '100%' }}>
+          {SWIMLANES.map((lane) => (
+            <div key={lane.label} className="swimlane" style={{ top: lane.y, height: lane.h, background: lane.color }}>
+              <span className="swimlane-label">{lane.label}</span>
+            </div>
+          ))}
         </Panel>
 
         {/* Header */}
@@ -156,21 +180,20 @@ const App: React.FC = () => {
 
         {/* Cost badge */}
         <Panel position="top-right" style={{ top: 12, right: 12 }}>
-          <div className="cost-badge">Fixed Model Cost: $60/mo</div>
+          <div className="cost-badge" onClick={() => setShowCostModal(true)} style={{ cursor: 'pointer' }}>
+            Fixed Model Cost: $60/mo
+          </div>
         </Panel>
 
         {/* Filter pills */}
         <Panel position="top-right" style={{ top: 48 }}>
           <div className="filter-pills">
             {['All Components', ...Object.keys(FILTER_MAP)].map((f) => (
-              <button key={f} className={`filter-pill ${activeFilter === f ? 'active' : ''}`} onClick={() => setActiveFilter(f)}>
-                {f}
-              </button>
+              <button key={f} className={`filter-pill ${activeFilter === f ? 'active' : ''}`} onClick={() => setActiveFilter(f)}>{f}</button>
             ))}
           </div>
         </Panel>
 
-        {/* Toolbar */}
         <Panel position="top-right" style={{ top: 90 }}>
           <Toolbar nodes={nodes} edges={allEdges} />
         </Panel>
@@ -188,7 +211,35 @@ const App: React.FC = () => {
         </Panel>
       </ReactFlow>
 
-      <NotesPanel node={selectedNode} allNodes={nodes} edges={allEdges} onClose={() => setSelectedNode(null)} onNoteChange={handleNoteChange} onLinksChange={handleLinksChange} onNavigateToNode={handleNavigateToNode} />
+      <NotesPanel node={selectedNode} allNodes={nodes} edges={allEdges} onClose={() => setSelectedNode(null)} onNoteChange={handleNoteChange} onLinksChange={handleLinksChange} onNavigateToNode={handleNavigateToNode} onDelete={handleDeleteNode} onEditTitle={handleEditTitle} onEditLines={handleEditLines} />
+
+      {/* Cost Modal */}
+      {showCostModal && (
+        <div className="modal-overlay" onClick={() => setShowCostModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2 style={{ color: '#7BD88F', margin: 0 }}>Model Cost Breakdown</h2>
+              <button className="notes-btn close-btn" onClick={() => setShowCostModal(false)}>&#x2715;</button>
+            </div>
+            <div className="cost-table">
+              {COST_BREAKDOWN.map((item) => (
+                <div key={item.name} className="cost-row">
+                  <span>{item.name}</span>
+                  <span className="cost-value">{item.cost}</span>
+                </div>
+              ))}
+              <div className="cost-row cost-total">
+                <span>Total Fixed</span>
+                <span className="cost-value">$60/mo + Grok usage</span>
+              </div>
+            </div>
+            <div className="cost-notes-section">
+              <label style={{ fontSize: 12, opacity: 0.6, marginBottom: 4, display: 'block' }}>Cost Notes</label>
+              <textarea className="notes-textarea" value={costNotes} onChange={(e) => setCostNotes(e.target.value)} onBlur={() => handleCostNoteSave(costNotes)} placeholder="Add notes about costs..." />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

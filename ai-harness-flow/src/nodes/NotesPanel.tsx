@@ -11,43 +11,36 @@ interface NotesPanelProps {
   onNoteChange: (nodeId: string, note: string) => void;
   onLinksChange: (nodeId: string, links: string[]) => void;
   onNavigateToNode: (nodeId: string) => void;
+  onDelete?: (nodeId: string) => void;
+  onEditTitle?: (nodeId: string, title: string) => void;
+  onEditLines?: (nodeId: string, lines: string[]) => void;
 }
 
 function renderNoteWithLinks(text: string, onNavigate: (id: string) => void): React.ReactNode[] {
-  // Split on [[node-id]] references and URLs
   const pattern = /(\[\[[\w-]+\]\]|https?:\/\/[^\s]+)/g;
   const parts = text.split(pattern);
   return parts.map((part, i) => {
     const refMatch = part.match(/^\[\[([\w-]+)\]\]$/);
     if (refMatch) {
-      return (
-        <span
-          key={i}
-          className="note-link note-ref"
-          onClick={(e) => { e.stopPropagation(); onNavigate(refMatch[1]); }}
-          title={`Go to ${refMatch[1]}`}
-        >
-          @{refMatch[1]}
-        </span>
-      );
+      return <span key={i} className="note-link note-ref" onClick={(e) => { e.stopPropagation(); onNavigate(refMatch[1]); }} title={`Go to ${refMatch[1]}`}>@{refMatch[1]}</span>;
     }
     if (/^https?:\/\//.test(part)) {
-      return (
-        <a key={i} className="note-link note-url" href={part} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-          {part.length > 40 ? part.slice(0, 37) + '...' : part}
-        </a>
-      );
+      return <a key={i} className="note-link note-url" href={part} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>{part.length > 40 ? part.slice(0, 37) + '...' : part}</a>;
     }
     return <span key={i}>{part}</span>;
   });
 }
 
-const NotesPanel: React.FC<NotesPanelProps> = ({ node, allNodes, edges, onClose, onNoteChange, onLinksChange, onNavigateToNode }) => {
+const NotesPanel: React.FC<NotesPanelProps> = ({ node, allNodes, edges, onClose, onNoteChange, onLinksChange, onNavigateToNode, onDelete, onEditTitle, onEditLines }) => {
   const [note, setNote] = useState('');
   const [links, setLinks] = useState<string[]>([]);
   const [newLink, setNewLink] = useState('');
   const [copied, setCopied] = useState(false);
   const [showLinkInput, setShowLinkInput] = useState(false);
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [editTitle, setEditTitle] = useState('');
+  const [editingLines, setEditingLines] = useState(false);
+  const [editLines, setEditLines] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -56,62 +49,47 @@ const NotesPanel: React.FC<NotesPanelProps> = ({ node, allNodes, edges, onClose,
       const allLinks = loadLinks();
       setNote(notes[node.id] || node.data.notes || '');
       setLinks(allLinks[node.id] || node.data.links || []);
-      setCopied(false);
-      setShowLinkInput(false);
-      setNewLink('');
+      setCopied(false); setShowLinkInput(false); setNewLink('');
+      setEditingTitle(false); setEditingLines(false);
+      setEditTitle(node.data.title || '');
+      setEditLines(((node.data as { lines?: string[] }).lines || []).join('\n'));
     }
   }, [node]);
 
   if (!node) return null;
-
   const data = node.data as { title?: string; color?: string; lines?: string[]; chips?: string[]; toggles?: { label: string; on: boolean; note?: string }[] };
 
   const handleSave = () => {
-    const notes = loadNotes();
-    notes[node.id] = note;
-    saveNotes(notes);
-    onNoteChange(node.id, note);
+    const notes = loadNotes(); notes[node.id] = note; saveNotes(notes); onNoteChange(node.id, note);
   };
-
   const handleAddLink = () => {
-    const url = newLink.trim();
-    if (!url) return;
-    const updated = [...links, url];
-    setLinks(updated);
-    const allLinks = loadLinks();
-    allLinks[node.id] = updated;
-    saveLinks(allLinks);
-    onLinksChange(node.id, updated);
-    setNewLink('');
-    setShowLinkInput(false);
+    const url = newLink.trim(); if (!url) return;
+    const updated = [...links, url]; setLinks(updated);
+    const allLinks = loadLinks(); allLinks[node.id] = updated; saveLinks(allLinks); onLinksChange(node.id, updated);
+    setNewLink(''); setShowLinkInput(false);
   };
-
   const handleRemoveLink = (idx: number) => {
-    const updated = links.filter((_, i) => i !== idx);
-    setLinks(updated);
-    const allLinks = loadLinks();
-    allLinks[node.id] = updated;
-    saveLinks(allLinks);
-    onLinksChange(node.id, updated);
+    const updated = links.filter((_, i) => i !== idx); setLinks(updated);
+    const allLinks = loadLinks(); allLinks[node.id] = updated; saveLinks(allLinks); onLinksChange(node.id, updated);
   };
-
   const handleCopy = () => {
     const parts: string[] = [];
     if (data.title) parts.push(data.title);
     if (data.lines) parts.push(...data.lines);
-    if (data.chips) parts.push(`Chips: ${data.chips.join(', ')}`);
-    if (data.toggles) {
-      data.toggles.forEach((t) => {
-        parts.push(`${t.label}: ${t.on ? 'ON' : 'OFF'}${t.note ? ` (${t.note})` : ''}`);
-      });
-    }
     if (links.length > 0) parts.push(`Links:\n${links.map(l => `  - ${l}`).join('\n')}`);
     if (note.trim()) parts.push(`\nNotes:\n${note.trim()}`);
-
-    navigator.clipboard.writeText(parts.join('\n')).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
+    navigator.clipboard.writeText(parts.join('\n')).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); });
+  };
+  const handleSaveTitle = () => {
+    if (onEditTitle && editTitle.trim()) { onEditTitle(node.id, editTitle.trim()); }
+    setEditingTitle(false);
+  };
+  const handleSaveLines = () => {
+    if (onEditLines) { onEditLines(node.id, editLines.split('\n').filter(l => l.trim())); }
+    setEditingLines(false);
+  };
+  const handleDelete = () => {
+    if (onDelete && confirm('Delete this node?')) { onDelete(node.id); onClose(); }
   };
 
   const otherNodes = allNodes.filter((n) => n.id !== node.id);
@@ -119,59 +97,57 @@ const NotesPanel: React.FC<NotesPanelProps> = ({ node, allNodes, edges, onClose,
   return (
     <div className="notes-panel" style={{ borderColor: data.color }}>
       <div className="notes-header">
-        <span className="notes-title" style={{ color: data.color }}>
-          {data.title || node.id}
-        </span>
+        {editingTitle ? (
+          <input className="edit-title-input" value={editTitle} onChange={(e) => setEditTitle(e.target.value)} onBlur={handleSaveTitle} onKeyDown={(e) => { if (e.key === 'Enter') handleSaveTitle(); }} autoFocus style={{ color: data.color }} />
+        ) : (
+          <span className="notes-title" style={{ color: data.color, cursor: 'pointer' }} onDoubleClick={() => setEditingTitle(true)} title="Double-click to edit title">
+            {data.title || node.id}
+          </span>
+        )}
         <div className="notes-actions">
-          <button className="notes-btn copy-btn" onClick={handleCopy} title="Copy node + notes">
-            {copied ? '✓ Copied' : '📋 Copy'}
-          </button>
-          <button className="notes-btn close-btn" onClick={onClose} title="Close">✕</button>
+          <button className="notes-btn copy-btn" onClick={handleCopy} title="Copy">{copied ? '\u2713 Copied' : '\ud83d\udccb Copy'}</button>
+          {onDelete && <button className="notes-btn delete-btn" onClick={handleDelete} title="Delete node">\ud83d\uddd1</button>}
+          <button className="notes-btn close-btn" onClick={onClose} title="Close">\u2715</button>
         </div>
       </div>
 
-      {/* Links section */}
+      {/* Edit description */}
+      {editingLines ? (
+        <textarea className="notes-textarea" style={{ minHeight: 60 }} value={editLines} onChange={(e) => setEditLines(e.target.value)} onBlur={handleSaveLines} onKeyDown={(e) => { if (e.key === 'Escape') setEditingLines(false); }} autoFocus />
+      ) : (
+        data.lines && data.lines.length > 0 && (
+          <div className="card-lines editable-lines" onDoubleClick={() => setEditingLines(true)} title="Double-click to edit" style={{ marginBottom: 8, cursor: 'pointer' }}>
+            {data.lines.map((line, i) => <span key={i} className="card-line">{line}</span>)}
+          </div>
+        )
+      )}
+
       {links.length > 0 && (
         <div className="notes-links">
           {links.map((url, i) => (
             <div key={i} className="notes-link-item">
-              <a href={url} target="_blank" rel="noopener noreferrer" className="notes-link-url">
-                🔗 {url.length > 32 ? url.slice(0, 29) + '...' : url}
-              </a>
-              <button className="notes-link-remove" onClick={() => handleRemoveLink(i)} title="Remove link">✕</button>
+              <a href={url} target="_blank" rel="noopener noreferrer" className="notes-link-url">{'\ud83d\udd17'} {url.length > 32 ? url.slice(0, 29) + '...' : url}</a>
+              <button className="notes-link-remove" onClick={() => handleRemoveLink(i)}>\u2715</button>
             </div>
           ))}
         </div>
       )}
 
-      {/* PART 2 — Cross-references: chips highlight based on edge existence */}
       {otherNodes.length > 0 && (
         <div className="notes-xrefs">
           <span className="notes-xrefs-label">Link to node:</span>
           <div className="notes-xrefs-chips">
             {otherNodes.map((n) => {
               const nd = n.data as { title?: string; color?: string };
-              const hasEdge = edges.some(
-                (e) =>
-                  (e.source === node.id && e.target === n.id) ||
-                  (e.source === n.id && e.target === node.id),
-              );
+              const hasEdge = edges.some((e) => (e.source === node.id && e.target === n.id) || (e.source === n.id && e.target === node.id));
               return (
-                <button
-                  key={n.id}
-                  className={`xref-chip ${hasEdge ? 'active' : ''}`}
+                <button key={n.id} className={`xref-chip ${hasEdge ? 'active' : ''}`}
                   style={{ borderColor: nd.color, color: hasEdge ? '#0E1626' : nd.color, background: hasEdge ? nd.color : 'transparent' }}
                   onClick={() => {
                     const ref = `[[${n.id}]]`;
                     const updated = note.includes(ref) ? note.replace(ref, '').replace(/\n{3,}/g, '\n\n').trim() : note + (note ? '\n' : '') + ref;
-                    setNote(updated);
-                    const notes = loadNotes();
-                    notes[node.id] = updated;
-                    saveNotes(notes);
-                    onNoteChange(node.id, updated);
-                  }}
-                  title={hasEdge ? `Edge exists to ${n.id} · click to toggle [[ref]]` : `Insert [[${n.id}]] into notes`}
-                >
+                    setNote(updated); const notes = loadNotes(); notes[node.id] = updated; saveNotes(notes); onNoteChange(node.id, updated);
+                  }}>
                   {nd.title || n.id}
                 </button>
               );
@@ -180,46 +156,20 @@ const NotesPanel: React.FC<NotesPanelProps> = ({ node, allNodes, edges, onClose,
         </div>
       )}
 
-      <textarea
-        ref={textareaRef}
-        className="notes-textarea"
-        placeholder="Add notes... Use [[node-id]] to link nodes, or paste URLs"
-        value={note}
-        onChange={(e) => setNote(e.target.value)}
-        onBlur={handleSave}
-        onKeyDown={(e) => {
-          if (e.key === 'Escape') onClose();
-        }}
-      />
+      <textarea ref={textareaRef} className="notes-textarea" placeholder="Add notes... Use [[node-id]] to link nodes" value={note} onChange={(e) => setNote(e.target.value)} onBlur={handleSave} onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }} />
 
-      {/* Rendered note preview with clickable links */}
-      {note.trim() && (
-        <div className="notes-preview">
-          {renderNoteWithLinks(note, onNavigateToNode)}
-        </div>
-      )}
+      {note.trim() && <div className="notes-preview">{renderNoteWithLinks(note, onNavigateToNode)}</div>}
 
-      {/* Add external link */}
       {showLinkInput ? (
         <div className="link-input-row">
-          <input
-            className="link-input"
-            type="url"
-            placeholder="https://..."
-            value={newLink}
-            onChange={(e) => setNewLink(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') handleAddLink(); if (e.key === 'Escape') setShowLinkInput(false); }}
-            autoFocus
-          />
+          <input className="link-input" type="url" placeholder="https://..." value={newLink} onChange={(e) => setNewLink(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleAddLink(); if (e.key === 'Escape') setShowLinkInput(false); }} autoFocus />
           <button className="notes-btn" onClick={handleAddLink}>Add</button>
         </div>
       ) : (
-        <button className="notes-btn add-link-btn" onClick={() => setShowLinkInput(true)}>
-          + Add link
-        </button>
+        <button className="notes-btn add-link-btn" onClick={() => setShowLinkInput(true)}>+ Add link</button>
       )}
 
-      <div className="notes-hint">Notes save automatically · Esc to close · [[node-id]] for cross-refs</div>
+      <div className="notes-hint">Notes auto-save \u00b7 Esc to close \u00b7 [[node-id]] for cross-refs \u00b7 Double-click title/description to edit</div>
     </div>
   );
 };

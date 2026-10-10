@@ -754,3 +754,118 @@ html, body, #root {
   .layer-labels { display: none; }
   .cost-badge { font-size: 11px; padding: 4px 10px; }
 }
+
+/* === v1.6 Swimlanes, Modal, Delete, Edit === */
+
+/* Swimlane bands */
+.swimlane {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  pointer-events: none;
+}
+.swimlane-label {
+  position: absolute;
+  left: 14px;
+  top: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #4a5568;
+}
+
+/* Delete button */
+.delete-btn {
+  font-size: 13px;
+  padding: 4px 8px;
+  opacity: 0.6;
+}
+.delete-btn:hover {
+  opacity: 1;
+  color: #ff6b6b;
+  background: rgba(255,107,107,0.1);
+}
+
+/* Edit title input */
+.edit-title-input {
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--color-llm);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 4px 8px;
+  width: 100%;
+  outline: none;
+  font-family: inherit;
+}
+
+/* Editable lines */
+.editable-lines:hover {
+  background: rgba(255,255,255,0.03);
+  border-radius: 6px;
+  padding: 2px 4px;
+}
+
+/* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  animation: fadeIn 0.15s ease-out;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* Modal content */
+.modal-content {
+  background: var(--card-fill);
+  border: 2px solid var(--card-border);
+  border-radius: 16px;
+  padding: 24px;
+  width: 400px;
+  max-width: 90vw;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+  animation: slideUp 0.2s ease-out;
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+/* Cost table */
+.cost-table {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.cost-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 12px;
+  background: rgba(0,0,0,0.15);
+  border-radius: 8px;
+  font-size: 13px;
+}
+.cost-value {
+  font-weight: 600;
+  color: #7BD88F;
+}
+.cost-total {
+  border: 1px solid rgba(123,216,143,0.3);
+  background: rgba(123,216,143,0.08);
+}
+
+/* Cost notes section */
+.cost-notes-section {
+  margin-top: 8px;
+}
