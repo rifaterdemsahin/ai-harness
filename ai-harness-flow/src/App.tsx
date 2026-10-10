@@ -9,11 +9,11 @@ import '@xyflow/react/dist/style.css';
 import './theme.css';
 import { initialNodes, loadNotes, saveNotes, loadCostNotes, saveCostNotes, type AppNode } from './data/nodes';
 import { dedupeGraphEdges, deriveNoteEdges, flowToGraphEdges, graphToFlowEdges, loadGraphEdges, nodeColor, saveGraphEdges } from './data/edgeGraph';
-import CardNode from './nodes/CardNode';
-import ComputeNode from './nodes/ComputeNode';
-import IngressNode from './nodes/IngressNode';
-import ModelNode from './nodes/ModelNode';
-import DataNode from './nodes/DataNode';
+import ModernNode from './nodes/ModernNode';
+
+
+
+
 import NotesPanel from './nodes/NotesPanel';
 import Toolbar from './nodes/Toolbar';
 import LabeledEdge from './edges/LabeledEdge';
@@ -28,7 +28,7 @@ const FILTER_MAP: Record<string, string[]> = {
   'Memory & Tools': ['macmini', 'skull', 'obsidian', 'n8n', 'qdrant', 'googledrive', 'neo4j', 'arangodb'],
 };
 
-const nodeTypes: NodeTypes = { card: CardNode, compute: ComputeNode, ingress: IngressNode, model: ModelNode, data: DataNode, swimlane: SwimlaneNode };
+const nodeTypes: NodeTypes = { modern: ModernNode, swimlane: SwimlaneNode };
 const edgeTypes: EdgeTypes = { labeled: LabeledEdge };
 const defaultViewport = { x: 0, y: 0, zoom: 0.55 };
 
