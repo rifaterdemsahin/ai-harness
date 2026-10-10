@@ -42,6 +42,22 @@ function saveLinks(links: Record<string, string[]>) {
 
 export { loadNotes, saveNotes, loadLinks, saveLinks };
 
+/** Notes shipped with the diagram. A note saved in localStorage always wins. */
+export const DEFAULT_NOTES: Record<string, string> = {
+  coordinator: 'MAKES SURE THE BOTS ARE ALWAYS RUNNING WITH THE COMPUTE',
+  llm: 'this node is linked to external providers',
+  dataOutput:
+    'RCLONE RUNS WITH PAP COMMAND\nPAP PULL PUSH ARCHIEVE\nARANGO DB FOR METADATA\nNEO4J FOR THE RELATIONS\nDAILY PUSH WITH PAP\nQDRANT SEMANTIC FOR PROPER CONTEXT LOAD',
+  dataInputs: 'MOSTLY MARKDOWN AND IMAGES',
+  external:
+    'Api BASED USAGE!\nAlibaba is Qwen · Gemini removed · Som removed\nTotal: $40/mo (Xiaomi $20 + DeepSeek $20)',
+  outside: 'CONNECT TO THE CHANNELS NODE',
+  desktop: 'ERDEM CODES LOCALLY\nERDEM USES ON THE MOBILE PHONE\nGROKBOT removed',
+  tools:
+    'CONNECT TO SECOND BRAIN\nCONNECT THIS TO A NEW NODE CALLED HERMESS AT THE BOTTOM AND IT SHOULD HAVE GROKBOT',
+  hermess: 'GROKBOT lives here',
+};
+
 const baseNodes: AppNode[] = [
   {
     id: 'compute',
@@ -56,29 +72,25 @@ const baseNodes: AppNode[] = [
         { label: 'MacBook', on: false, note: '→ LLM' },
       ],
       lines: [
-        '☁️ Hetzner VPS → FAST, main coordinator',
-        '🖥️ Mac Mini → FAST',
-        '💻 Skull Canyon → slow',
-        'Others → standby',
+        'Hetzner ON → FAST, main coordinator',
+        'Mac Mini ON → FAST',
+        'Skull Canyon ON → slow',
+        'XPS · MacBook · stays home → LLM',
       ],
     },
-    style: { width: 440, height: 270 },
+    style: { width: 440, height: 250 },
     draggable: true,
   },
   {
     id: 'coordinator',
     type: 'card',
-    position: { x: 64, y: 480 },
+    position: { x: 64, y: 460 },
     data: {
       title: '',
       color: '#F2994A',
-      lines: [
-        'Main coordinator: Hetzner (datacenter)',
-        '· assigns hosts',
-        '· MAKES SURE BOTS ARE ALWAYS RUNNING',
-      ],
+      lines: ['Main coordinator: Hetzner (datacenter)', '· assigns hosts'],
     },
-    style: { width: 440, height: 82 },
+    style: { width: 440, height: 72 },
     draggable: true,
   },
   {
@@ -88,9 +100,8 @@ const baseNodes: AppNode[] = [
     data: {
       title: '🤖 LLM',
       color: '#7CC4FF',
-      lines: ['← linked to External Providers', 'Node connection: all boxes'],
     },
-    style: { width: 200, height: 90 },
+    style: { width: 200, height: 80 },
     draggable: true,
   },
   {
@@ -112,25 +123,20 @@ const baseNodes: AppNode[] = [
     data: {
       title: '🗄️ DATA OUTPUT',
       color: '#7BD88F',
-      lines: [
-        'Rclone → Drive (PAP: Pull, Push, Archive)',
-        'ArangoDB → metadata',
-        'Neo4j → relations',
-        'Daily push → Qdrant (semantic context)',
-      ],
+      lines: ['Rclone → Drive', 'ArangoDB · Neo4j', 'Daily push → Qdrant'],
     },
-    style: { width: 260, height: 140 },
+    style: { width: 200, height: 120 },
     draggable: true,
   },
   {
     id: 'dataInputs',
     type: 'card',
-    position: { x: 64, y: 580 },
+    position: { x: 64, y: 560 },
     data: {
       title: '🧠 Data Inputs',
       color: '#7BD88F',
       badge: { n: 1, emoji: '🧠' },
-      lines: ['Mostly Markdown & Images', 'Second Brain › Obsidian (MacBook)'],
+      lines: ['One data input', "Second Brain › Obsidian (MacBook)"],
     },
     style: { width: 440, height: 250 },
     draggable: true,
@@ -144,22 +150,23 @@ const baseNodes: AppNode[] = [
       color: '#4FD1C5',
       badge: { n: 4, emoji: '☁️' },
       lines: [
-        'Main: Xiaomi ($20)',
-        'Fallback: DeepSeek ($20)',
-        'Alibaba (Qwen)',
-        'Dev laptop: Grok',
-        '🔑 API based usage',
-        '',
-        'Total: ~$60+/mo',
+        'Main: Xiaomi · $20',
+        'Fallback: DeepSeek · $20',
+        'Alibaba = Qwen',
+        'Dev laptop provider: Grok',
+        'API based usage!',
+        '🔑 gives API keys',
+        '———',
+        'Total: $40 / month',
       ],
     },
-    style: { width: 396, height: 200 },
+    style: { width: 396, height: 190 },
     draggable: true,
   },
   {
     id: 'outside',
     type: 'card',
-    position: { x: 980, y: 430 },
+    position: { x: 980, y: 428 },
     data: {
       title: '🌍 Outside world',
       color: '#C9D3E3',
@@ -175,21 +182,15 @@ const baseNodes: AppNode[] = [
       title: 'Desktop Models',
       color: '#B79CFF',
       badge: { n: 3, emoji: '💻' },
-      lines: [
-        'Not primary · fallback models',
-        '$20 Hermes',
-        'Erdem codes locally',
-        'Erdem uses mobile',
-        'Backup · Access · Runclock',
-      ],
+      lines: ['Not primary · fallback models', '$20 Hermes', 'Backup · Access · Runclock'],
     },
-    style: { width: 396, height: 220 },
+    style: { width: 396, height: 250 },
     draggable: true,
   },
   {
     id: 'tools',
     type: 'card',
-    position: { x: 64, y: 850 },
+    position: { x: 64, y: 870 },
     data: {
       title: '🛠️ Tools & Skills',
       color: '#FF8FB8',
@@ -197,25 +198,21 @@ const baseNodes: AppNode[] = [
         'TOOLS (n8n) · API (world)',
         'Skills + Compute, Fly.io',
         '+ Azure → Resource → Key Vault (Security)',
-        '→ Connected to Second Brain',
       ],
     },
-    style: { width: 1312, height: 120 },
+    style: { width: 1312, height: 110 },
     draggable: true,
   },
   {
     id: 'hermess',
     type: 'card',
-    position: { x: 64, y: 1000 },
+    position: { x: 64, y: 1020 },
     data: {
-      title: '🤖 HERMESS',
+      title: '🦾 HERMESS',
       color: '#FF8FB8',
-      lines: [
-        'GROKBOT',
-        'Autonomous agent orchestration',
-      ],
+      lines: ['GROKBOT'],
     },
-    style: { width: 1312, height: 80 },
+    style: { width: 396, height: 90 },
     draggable: true,
   },
 ];
@@ -227,7 +224,7 @@ export const initialNodes: AppNode[] = baseNodes.map((n) => ({
   ...n,
   data: {
     ...n.data,
-    notes: savedNotes[n.id] || '',
+    notes: savedNotes[n.id] || DEFAULT_NOTES[n.id] || '',
     links: savedLinks[n.id] || [],
   },
 }));

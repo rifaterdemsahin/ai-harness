@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   ReactFlow,
   Background,
@@ -7,6 +7,8 @@ import {
   Panel,
   useNodesState,
   useEdgesState,
+  type Connection,
+  type Edge,
   type NodeTypes,
   type Node,
 } from '@xyflow/react';
@@ -20,6 +22,7 @@ import ComputeNode from './nodes/ComputeNode';
 import ChannelNode from './nodes/ChannelNode';
 import NotesPanel from './nodes/NotesPanel';
 import Toolbar from './nodes/Toolbar';
+import { buildUserEdges, loadUserEdges, saveUserEdges, type UserEdge } from './data/userEdges';
 
 const nodeTypes: NodeTypes = {
   card: CardNode,
@@ -33,6 +36,37 @@ const App: React.FC = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState<AppNode>(initialNodes);
   const [edges, , onEdgesChange] = useEdgesState(initialEdges);
   const [selectedNode, setSelectedNode] = useState<AppNode | null>(null);
+  const [userEdges, setUserEdges] = useState<UserEdge[]>(() => loadUserEdges());
+
+  // Drag from a handle to another box to draw your own connection.
+  const handleConnect = useCallback(
+    (connection: Connection) => {
+      const { source, target } = connection;
+      if (!source || !target || source === target) return;
+      const id = `user-${source}-${target}`;
+      const next = [
+        ...userEdges.filter((e) => e.id !== id),
+        { id, source, target, label: 'link' },
+      ];
+      setUserEdges(next);
+      saveUserEdges(next);
+    },
+    [userEdges]
+  );
+
+  // Click a user-drawn edge to remove it.
+  const handleEdgeClick = useCallback(
+    (_: React.MouseEvent, edge: Edge) => {
+      if (!edge.id.startsWith('user-')) return;
+      const next = userEdges.filter((e) => e.id !== edge.id);
+      setUserEdges(next);
+      saveUserEdges(next);
+    },
+    [userEdges]
+  );
+
+  const drawnEdges = useMemo(() => buildUserEdges(userEdges, nodes), [userEdges, nodes]);
+  const renderedEdges = useMemo(() => [...edges, ...drawnEdges], [edges, drawnEdges]);
 
   const getNodeColor = useCallback((node: AppNode) => {
     return (node.data as { color?: string })?.color ?? '#2B3F66';
@@ -83,9 +117,11 @@ const App: React.FC = () => {
     <div style={{ width: '100%', height: '100dvh' }}>
       <ReactFlow
         nodes={nodes}
-        edges={edges}
+        edges={renderedEdges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        onConnect={handleConnect}
+        onEdgeClick={handleEdgeClick}
         onNodeClick={handleNodeClick}
         onPaneClick={handlePaneClick}
         nodeTypes={nodeTypes}
@@ -96,8 +132,9 @@ const App: React.FC = () => {
         defaultViewport={defaultViewport}
         deleteKeyCode={null}
         nodesDraggable
-        nodesConnectable={false}
-        elementsSelectable={false}
+        nodesConnectable
+        connectionLineStyle={{ stroke: '#FF8FB8', strokeWidth: 2, strokeDasharray: '4 4' }}
+        elementsSelectable
         proOptions={{ hideAttribution: true }}
       >
         <Background color="#ffffff" gap={20} size={1} />

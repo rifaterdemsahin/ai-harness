@@ -48,11 +48,27 @@ html, body, #root {
   background: #1e2f4d !important;
 }
 
-/* Hide handle dots */
+/* Hide handle dots until the node is hovered, then show them as connection targets */
 .react-flow__handle {
   opacity: 0 !important;
   width: 1px !important;
   height: 1px !important;
+}
+
+.card-node:hover .react-flow__handle,
+.card-node:focus-within .react-flow__handle {
+  opacity: 1 !important;
+  width: 9px !important;
+  height: 9px !important;
+  background: var(--card-fill) !important;
+  border: 2px solid var(--color-tools) !important;
+  cursor: crosshair;
+}
+
+.host-line {
+  display: flex;
+  align-items: center;
+  gap: 7px;
 }
 
 /* Header panel */

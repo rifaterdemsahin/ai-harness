@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Handle, Position, type NodeProps } from '@xyflow/react';
 import type { CardData } from '../data/nodes';
 import Badge from './Badge';
+import HostIcon, { hostIconForLine } from '../components/HostIcon';
 
 const ComputeNode: React.FC<NodeProps> = ({ data }) => {
   const { title, color, badge, toggles: initialToggles, lines } = data as CardData;
@@ -24,10 +25,10 @@ const ComputeNode: React.FC<NodeProps> = ({ data }) => {
       role="group"
       aria-label={title || 'Compute node'}
     >
-      <Handle type="target" position={Position.Top} isConnectable={false} />
-      <Handle type="target" position={Position.Left} isConnectable={false} />
-      <Handle type="source" position={Position.Bottom} isConnectable={false} />
-      <Handle type="source" position={Position.Right} isConnectable={false} />
+      <Handle type="target" position={Position.Top} />
+      <Handle type="target" position={Position.Left} />
+      <Handle type="source" position={Position.Bottom} />
+      <Handle type="source" position={Position.Right} />
 
       <div className="card-header">
         {badge && <Badge n={badge.n} emoji={badge.emoji} color={color} />}
@@ -52,7 +53,10 @@ const ComputeNode: React.FC<NodeProps> = ({ data }) => {
       {lines && lines.length > 0 && (
         <div className="card-lines" style={{ marginTop: 8 }}>
           {lines.map((line, i) => (
-            <span key={i} className="card-line">{line}</span>
+            <span key={i} className="card-line host-line">
+              <HostIcon name={hostIconForLine(line)} size={15} color={color} />
+              <span>{line}</span>
+            </span>
           ))}
         </div>
       )}

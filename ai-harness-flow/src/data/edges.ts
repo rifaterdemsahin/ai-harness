@@ -133,4 +133,16 @@ export const initialEdges: Edge[] = [
     markerEnd: { type: MarkerType.ArrowClosed, color: '#FF8FB8' },
     labelStyle: { fill: '#FF8FB8', fontWeight: 500, fontSize: 11 },
   },
+  {
+    id: 'e-tools-hermess',
+    source: 'tools',
+    target: 'hermess',
+    sourceHandle: 'bottom',
+    targetHandle: 'top',
+    label: 'hermess',
+    type: 'smoothstep',
+    style: { stroke: '#FF8FB8', strokeWidth: 2 },
+    markerEnd: { type: MarkerType.ArrowClosed, color: '#FF8FB8' },
+    labelStyle: { fill: '#FF8FB8', fontWeight: 500, fontSize: 11 },
+  },
 ];

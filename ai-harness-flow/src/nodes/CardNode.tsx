@@ -14,10 +14,10 @@ const CardNode: React.FC<NodeProps> = ({ data }) => {
       role="group"
       aria-label={title || 'Card node'}
     >
-      <Handle type="target" position={Position.Top} isConnectable={false} />
-      <Handle type="target" position={Position.Left} isConnectable={false} />
-      <Handle type="source" position={Position.Bottom} isConnectable={false} />
-      <Handle type="source" position={Position.Right} isConnectable={false} />
+      <Handle type="target" position={Position.Top} />
+      <Handle type="target" position={Position.Left} />
+      <Handle type="source" position={Position.Bottom} />
+      <Handle type="source" position={Position.Right} />
 
       {(title || badge) && (
         <div className="card-header">
