@@ -22,10 +22,27 @@ const Toolbar: React.FC<ToolbarProps> = ({ nodes, edges }) => {
       const note = notes[node.id] || '';
       const nodeLinks = links[node.id] || [];
 
-      if (!note && nodeLinks.length === 0) continue;
-
       lines.push(`## ${data.title || node.id}`);
       lines.push('');
+      lines.push(`**Position:** x=${Math.round(node.position.x)}, y=${Math.round(node.position.y)}`);
+
+      if (node.style && typeof node.style === 'object') {
+        const s = node.style as Record<string, unknown>;
+        if (s.width) lines.push(`**Size:** ${s.width}×${s.height || '?'}`);
+      }
+      lines.push('');
+
+      if (data.chips?.length) {
+        lines.push(`**Chips:** ${data.chips.join(', ')}`);
+        lines.push('');
+      }
+
+      if (data.toggles?.length) {
+        data.toggles.forEach((t) => {
+          lines.push(`- ${t.label}: ${t.on ? 'ON' : 'OFF'}${t.note ? ` (${t.note})` : ''}`);
+        });
+        lines.push('');
+      }
 
       if (data.lines?.length) {
         data.lines.forEach((l) => lines.push(`- ${l}`));
@@ -48,7 +65,7 @@ const Toolbar: React.FC<ToolbarProps> = ({ nodes, edges }) => {
       lines.push('');
     }
 
-    // PART 6 — edges are part of the export.
+    // Edges
     if (edges.length) {
       lines.push('## Edges', '');
       describeEdges(edges).forEach((line) => lines.push(`- ${line}`));
@@ -62,7 +79,13 @@ const Toolbar: React.FC<ToolbarProps> = ({ nodes, edges }) => {
     JSON.stringify(
       {
         exportedAt: new Date().toISOString(),
-        nodes: nodes.map((n) => ({ id: n.id, title: (n.data as { title?: string }).title, position: n.position, data: n.data })),
+        nodes: nodes.map((n) => ({
+          id: n.id,
+          title: (n.data as { title?: string }).title,
+          position: n.position,
+          size: n.style ? { width: (n.style as Record<string, unknown>).width, height: (n.style as Record<string, unknown>).height } : undefined,
+          data: n.data,
+        })),
         notes: loadNotes(),
         links: loadLinks(),
         edges: describeEdges(edges),
@@ -95,13 +118,13 @@ const Toolbar: React.FC<ToolbarProps> = ({ nodes, edges }) => {
 
   return (
     <div className="toolbar">
-      <button className="toolbar-btn" onClick={handleCopyAll} title="Copy all notes + node data + edges">
+      <button className="toolbar-btn" onClick={handleCopyAll} title="Copy all notes + positions + edges">
         {copiedAll ? '✓ Copied' : '📋 Copy All'}
       </button>
       <button className="toolbar-btn" onClick={handleDownload} title="Download notes as Markdown">
         ⬇ Download
       </button>
-      <button className="toolbar-btn" onClick={handleDownloadJson} title="Download notes + edges as JSON">
+      <button className="toolbar-btn" onClick={handleDownloadJson} title="Download as JSON">
         ⬇ JSON
       </button>
       {notesCount > 0 && <span className="toolbar-badge">{notesCount} notes</span>}

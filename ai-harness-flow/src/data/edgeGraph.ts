@@ -28,6 +28,7 @@ export const SEED_EDGES: GraphEdge[] = [
   { id: 'seed-hermess-tools', source: 'hermess', target: 'tools', label: 'uses', kind: 'seed' },
   { id: 'seed-inputs-data', source: 'dataInputs', target: 'dataOutput', label: 'ingest', kind: 'seed' },
   { id: 'seed-compute-hermess', source: 'compute', target: 'hermess', label: 'hosts', kind: 'seed' },
+  { id: 'seed-coordinator-compute', source: 'coordinator', target: 'compute', label: 'coordinate', kind: 'seed' },
 ];
 
 /** PART 5 — edge colour inherits from the source node's border colour. */

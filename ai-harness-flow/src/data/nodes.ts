@@ -44,18 +44,18 @@ export { loadNotes, saveNotes, loadLinks, saveLinks };
 
 /** Notes shipped with the diagram. A note saved in localStorage always wins. */
 export const DEFAULT_NOTES: Record<string, string> = {
+  channel: 'REMOVE GROUPS\nROLE: CATEGORY\nCHANNEL: DOMAIN-TOPIC',
   coordinator: 'MAKES SURE THE BOTS ARE ALWAYS RUNNING WITH THE COMPUTE',
-  llm: 'this node is linked to external providers',
+  llm: 'this node is linked to external providers\nadd a node connection feature to all boxes',
   dataOutput:
     'RCLONE RUNS WITH PAP COMMAND\nPAP PULL PUSH ARCHIEVE\nARANGO DB FOR METADATA\nNEO4J FOR THE RELATIONS\nDAILY PUSH WITH PAP\nQDRANT SEMANTIC FOR PROPER CONTEXT LOAD',
   dataInputs: 'MOSTLY MARKDOWN AND IMAGES',
-  external:
-    'Api BASED USAGE!\nAlibaba is Qwen · Gemini removed · Som removed\nTotal: $40/mo (Xiaomi $20 + DeepSeek $20)',
-  outside: 'CONNECT TO THE CHANNELS NODE',
-  desktop: 'ERDEM CODES LOCALLY\nERDEM USES ON THE MOBILE PHONE\nGROKBOT removed',
+  external: 'remove qwen ali baba from here',
+  outside: 'CONNECT TO THE CHANNELS NODE\n[[channel]]',
+  desktop: 'ERDEM CODES LOCALLY\nERDEM USES ON THE MOBILE PHONE\nGROKBOT removed\n[[dataInputs]]',
   tools:
-    'CONNECT TO SECOND BRAIN\nCONNECT THIS TO A NEW NODE CALLED HERMESS AT THE BOTTOM AND IT SHOULD HAVE GROKBOT',
-  hermess: 'GROKBOT lives here',
+    'CONNECT TO SECOND BRAIN\nCONNECT THIS TO A NEW NODE CALLED HERMESS AT THE BOTTOM AND IT SHOULD HAVE GROKBOT\n[[dataOutput]]',
+  hermess: 'Hermess lives here\nGROKBOT lives here',
 };
 
 const baseNodes: AppNode[] = [
@@ -64,18 +64,18 @@ const baseNodes: AppNode[] = [
     type: 'compute',
     position: { x: 64, y: 190 },
     data: {
-      title: '⚙️ Compute',
+      title: '\u2699\ufe0f Compute',
       color: '#F2994A',
-      badge: { n: 2, emoji: '⚙️' },
+      badge: { n: 2, emoji: '\u2699\ufe0f' },
       toggles: [
-        { label: 'XPS', on: false, note: 'stays home → LLM' },
-        { label: 'MacBook', on: false, note: '→ LLM' },
+        { label: 'XPS', on: false, note: 'stays home \u2192 LLM' },
+        { label: 'MacBook', on: false, note: '\u2192 LLM' },
       ],
       lines: [
-        'Hetzner ON → FAST, main coordinator',
-        'Mac Mini ON → FAST',
-        'Skull Canyon ON → slow',
-        'XPS · MacBook · stays home → LLM',
+        'Hetzner ON \u2192 FAST, main coordinator',
+        'Mac Mini ON \u2192 FAST',
+        'Skull Canyon ON \u2192 slow',
+        'XPS \u00b7 MacBook \u00b7 stays home \u2192 LLM',
       ],
     },
     style: { width: 440, height: 250 },
@@ -88,7 +88,7 @@ const baseNodes: AppNode[] = [
     data: {
       title: '',
       color: '#F2994A',
-      lines: ['Main coordinator: Hetzner (datacenter)', '· assigns hosts'],
+      lines: ['Main coordinator: Hetzner (datacenter)', '\u00b7 assigns hosts'],
     },
     style: { width: 440, height: 72 },
     draggable: true,
@@ -98,7 +98,7 @@ const baseNodes: AppNode[] = [
     type: 'card',
     position: { x: 640, y: 190 },
     data: {
-      title: '🤖 LLM',
+      title: '\ud83e\udd16 LLM',
       color: '#7CC4FF',
     },
     style: { width: 200, height: 80 },
@@ -109,9 +109,9 @@ const baseNodes: AppNode[] = [
     type: 'channel',
     position: { x: 640, y: 380 },
     data: {
-      title: '💬 CHANNEL · Discord',
+      title: '\ud83d\udcac CHANNEL \u00b7 Discord',
       color: '#7CC4FF',
-      chips: ['Role', 'Domain', 'Topic', 'Groups', 'Bots'],
+      chips: ['Role: Category', 'Channel: Domain-Topic'],
     },
     style: { width: 200, height: 80 },
     draggable: true,
@@ -121,9 +121,9 @@ const baseNodes: AppNode[] = [
     type: 'card',
     position: { x: 640, y: 560 },
     data: {
-      title: '🗄️ DATA OUTPUT',
+      title: '\ud83d\uddc4\ufe0f DATA OUTPUT',
       color: '#7BD88F',
-      lines: ['Rclone → Drive', 'ArangoDB · Neo4j', 'Daily push → Qdrant'],
+      lines: ['Rclone \u2192 Drive', 'ArangoDB \u00b7 Neo4j', 'Daily push \u2192 Qdrant'],
     },
     style: { width: 200, height: 120 },
     draggable: true,
@@ -133,10 +133,10 @@ const baseNodes: AppNode[] = [
     type: 'card',
     position: { x: 64, y: 560 },
     data: {
-      title: '🧠 Data Inputs',
+      title: '\ud83e\udde0 Data Inputs',
       color: '#7BD88F',
-      badge: { n: 1, emoji: '🧠' },
-      lines: ['One data input', "Second Brain › Obsidian (MacBook)"],
+      badge: { n: 1, emoji: '\ud83e\udde0' },
+      lines: ['One data input', 'Second Brain \u203a Obsidian (MacBook)'],
     },
     style: { width: 440, height: 250 },
     draggable: true,
@@ -148,15 +148,14 @@ const baseNodes: AppNode[] = [
     data: {
       title: 'External Providers',
       color: '#4FD1C5',
-      badge: { n: 4, emoji: '☁️' },
+      badge: { n: 4, emoji: '\u2601\ufe0f' },
       lines: [
-        'Main: Xiaomi · $20',
-        'Fallback: DeepSeek · $20',
-        'Alibaba = Qwen',
+        'Main: Xiaomi \u00b7 $20',
+        'Fallback: DeepSeek \u00b7 $20',
         'Dev laptop provider: Grok',
         'API based usage!',
-        '🔑 gives API keys',
-        '———',
+        '\ud83d\udd11 gives API keys',
+        '\u2014\u2014\u2014',
         'Total: $40 / month',
       ],
     },
@@ -168,7 +167,7 @@ const baseNodes: AppNode[] = [
     type: 'card',
     position: { x: 980, y: 428 },
     data: {
-      title: '🌍 Outside world',
+      title: '\ud83c\udf0d Outside world',
       color: '#C9D3E3',
     },
     style: { width: 396, height: 72 },
@@ -181,8 +180,8 @@ const baseNodes: AppNode[] = [
     data: {
       title: 'Desktop Models',
       color: '#B79CFF',
-      badge: { n: 3, emoji: '💻' },
-      lines: ['Not primary · fallback models', '$20 Hermes', 'Backup · Access · Runclock'],
+      badge: { n: 3, emoji: '\ud83d\udcbb' },
+      lines: ['Not primary \u00b7 fallback models', '$20 Hermes', 'Backup \u00b7 Access \u00b7 Runclock'],
     },
     style: { width: 396, height: 250 },
     draggable: true,
@@ -192,12 +191,12 @@ const baseNodes: AppNode[] = [
     type: 'card',
     position: { x: 64, y: 870 },
     data: {
-      title: '🛠️ Tools & Skills',
+      title: '\ud83e\ude96 Tools & Skills',
       color: '#FF8FB8',
       lines: [
-        'TOOLS (n8n) · API (world)',
+        'TOOLS (n8n) \u00b7 API (world)',
         'Skills + Compute, Fly.io',
-        '+ Azure → Resource → Key Vault (Security)',
+        '+ Azure \u2192 Resource \u2192 Key Vault (Security)',
       ],
     },
     style: { width: 1312, height: 110 },
@@ -208,11 +207,11 @@ const baseNodes: AppNode[] = [
     type: 'card',
     position: { x: 64, y: 1020 },
     data: {
-      title: '🦾 HERMESS',
+      title: '\ud83e\uddbe HARNESS ORCHESTRATOR',
       color: '#FF8FB8',
       lines: ['GROKBOT'],
     },
-    style: { width: 396, height: 90 },
+    style: { width: 1312, height: 90 },
     draggable: true,
   },
 ];
