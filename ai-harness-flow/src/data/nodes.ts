@@ -42,20 +42,20 @@ function saveLinks(links: Record<string, string[]>) {
 
 export { loadNotes, saveNotes, loadLinks, saveLinks };
 
-/** Notes shipped with the diagram. A note saved in localStorage always wins. */
+/** Clean notes — no TODOs, no stale instructions. */
 export const DEFAULT_NOTES: Record<string, string> = {
-  channel: 'REMOVE GROUPS\nROLE: CATEGORY\nCHANNEL: DOMAIN-TOPIC',
-  coordinator: 'MAKES SURE THE BOTS ARE ALWAYS RUNNING WITH THE COMPUTE',
-  llm: 'this node is linked to external providers\nadd a node connection feature to all boxes',
+  channel: 'Role maps to Category\nChannel maps to Domain-Topic',
+  coordinator: 'Ensures bots are always running with compute',
+  llm: 'Linked to External Providers for model access',
   dataOutput:
-    'RCLONE RUNS WITH PAP COMMAND\nPAP PULL PUSH ARCHIEVE\nARANGO DB FOR METADATA\nNEO4J FOR THE RELATIONS\nDAILY PUSH WITH PAP\nQDRANT SEMANTIC FOR PROPER CONTEXT LOAD',
-  dataInputs: 'MOSTLY MARKDOWN AND IMAGES',
-  external: 'remove qwen ali baba from here',
-  outside: 'CONNECT TO THE CHANNELS NODE\n[[channel]]',
-  desktop: 'ERDEM CODES LOCALLY\nERDEM USES ON THE MOBILE PHONE\nGROKBOT removed\n[[dataInputs]]',
+    'Rclone (PAP: Pull, Push, Archive)\nArangoDB for metadata\nNeo4j for relations\nDaily push to Qdrant for semantic context',
+  dataInputs: 'Mostly Markdown and Images\nSecond Brain on Obsidian (MacBook)',
+  external: 'API based usage\nGrok (dev laptop, usage-based pricing)',
+  outside: 'Connects to Channel node via [[channel]]',
+  desktop: 'Erdem codes locally and uses mobile\nHermes fallback model',
   tools:
-    'CONNECT TO SECOND BRAIN\nCONNECT THIS TO A NEW NODE CALLED HERMESS AT THE BOTTOM AND IT SHOULD HAVE GROKBOT\n[[dataOutput]]',
-  hermess: 'Hermess lives here\nGROKBOT lives here',
+    'Connected to Second Brain via [[dataOutput]]\nHermess orchestrates from [[hermess]]',
+  hermess: 'Harness Orchestrator — GROKBOT runs here',
 };
 
 const baseNodes: AppNode[] = [
@@ -73,18 +73,19 @@ const baseNodes: AppNode[] = [
       ],
       lines: [
         'Hetzner ON \u2192 FAST, main coordinator',
+        'Hermes installed on all compute',
         'Mac Mini ON \u2192 FAST',
         'Skull Canyon ON \u2192 slow',
-        'XPS \u00b7 MacBook \u00b7 stays home \u2192 LLM',
+        'GROKBOT on all hosts',
       ],
     },
-    style: { width: 440, height: 250 },
+    style: { width: 440, height: 280 },
     draggable: true,
   },
   {
     id: 'coordinator',
     type: 'card',
-    position: { x: 64, y: 460 },
+    position: { x: 64, y: 490 },
     data: {
       title: '',
       color: '#F2994A',
@@ -100,8 +101,9 @@ const baseNodes: AppNode[] = [
     data: {
       title: '\ud83e\udd16 LLM',
       color: '#7CC4FF',
+      lines: ['Receives prompts from Channel', 'Consumes providers from External'],
     },
-    style: { width: 200, height: 80 },
+    style: { width: 200, height: 90 },
     draggable: true,
   },
   {
@@ -131,12 +133,12 @@ const baseNodes: AppNode[] = [
   {
     id: 'dataInputs',
     type: 'card',
-    position: { x: 64, y: 560 },
+    position: { x: 64, y: 580 },
     data: {
       title: '\ud83e\udde0 Data Inputs',
       color: '#7BD88F',
       badge: { n: 1, emoji: '\ud83e\udde0' },
-      lines: ['One data input', 'Second Brain \u203a Obsidian (MacBook)'],
+      lines: ['Mostly Markdown and Images', 'Second Brain \u203a Obsidian (MacBook)'],
     },
     style: { width: 440, height: 250 },
     draggable: true,
@@ -152,20 +154,21 @@ const baseNodes: AppNode[] = [
       lines: [
         'Main: Xiaomi \u00b7 $20',
         'Fallback: DeepSeek \u00b7 $20',
-        'Dev laptop provider: Grok',
-        'API based usage!',
+        'Dev laptop: Grok (usage-based)',
+        'Desktop: Hermes \u00b7 $20',
+        'API based usage',
         '\ud83d\udd11 gives API keys',
         '\u2014\u2014\u2014',
-        'Total: $40 / month',
+        'Total: $60 / month',
       ],
     },
-    style: { width: 396, height: 190 },
+    style: { width: 396, height: 210 },
     draggable: true,
   },
   {
     id: 'outside',
     type: 'card',
-    position: { x: 980, y: 428 },
+    position: { x: 980, y: 440 },
     data: {
       title: '\ud83c\udf0d Outside world',
       color: '#C9D3E3',
@@ -181,7 +184,7 @@ const baseNodes: AppNode[] = [
       title: 'Desktop Models',
       color: '#B79CFF',
       badge: { n: 3, emoji: '\ud83d\udcbb' },
-      lines: ['Not primary \u00b7 fallback models', '$20 Hermes', 'Backup \u00b7 Access \u00b7 Runclock'],
+      lines: ['Fallback models, not primary', 'Hermes \u00b7 $20', 'Backup \u00b7 Access \u00b7 Runclock'],
     },
     style: { width: 396, height: 250 },
     draggable: true,
@@ -197,19 +200,20 @@ const baseNodes: AppNode[] = [
         'TOOLS (n8n) \u00b7 API (world)',
         'Skills + Compute, Fly.io',
         '+ Azure \u2192 Resource \u2192 Key Vault (Security)',
+        'Second Brain integration',
       ],
     },
-    style: { width: 1312, height: 110 },
+    style: { width: 1312, height: 120 },
     draggable: true,
   },
   {
     id: 'hermess',
     type: 'card',
-    position: { x: 64, y: 1020 },
+    position: { x: 64, y: 1030 },
     data: {
       title: '\ud83e\uddbe HARNESS ORCHESTRATOR',
       color: '#FF8FB8',
-      lines: ['GROKBOT'],
+      lines: ['GROKBOT', 'Orchestrates tools and channel'],
     },
     style: { width: 1312, height: 90 },
     draggable: true,

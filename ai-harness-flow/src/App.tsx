@@ -38,6 +38,8 @@ import NotesPanel from './nodes/NotesPanel';
 import Toolbar from './nodes/Toolbar';
 import LabeledEdge from './edges/LabeledEdge';
 
+const APP_VERSION = '1.2.0';
+
 const nodeTypes: NodeTypes = {
   card: CardNode,
   compute: ComputeNode,
@@ -226,7 +228,7 @@ const App: React.FC = () => {
         />
         <Panel position="top-left">
           <div className="header-panel">
-            <h1>AI HARNESS</h1>
+            <h1>AI HARNESS <span className="version-badge">v{APP_VERSION}</span></h1>
             <div className="subtitle">Architecture Overview</div>
             <div className="tagline">
               Our job: <strong>Delivery Pilot</strong> · start from real, deliver value
